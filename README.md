@@ -1,6 +1,6 @@
 # Adaptive Projection Manuscript Code
 
-This repository contains the code used in the paper titled **"Adaptive Projected Two-Sample Comparisons for Single-Cell Expression Data"**, currently under review. The code implements statistical procedures and generates all the figures and tables included in the manuscript.
+This repository contains the code used in the paper titled **"Adaptive Projected Two-Sample Comparisons for Single-Cell Expression Data"**, currently under review. The code implements statistical procedures and generates all the figures included in the manuscript.
 
 ## 📁 Repository Structure
 
