@@ -1,6 +1,6 @@
 library(ggplot2)
 library(ggpubr)
-work_directory <- '/Users/tianyuzhang/Documents/GitHub/high-dim-comparison/Simulation_goes_into_paper/'
+work_directory <- './main_simulation/'
 settings <- c('InfGlobal_hard', 'InfProject_hard', 'InfAlternative_hard_pc1', 'InfAlternative_hard_pc2')
 # settings <- c('InfGlobal_hard_no_truncation', 'InfProject_hard_no_truncation', 'InfAlternative_hard_no_truncation_pc1', 'InfAlternative_hard_no_truncation_pc2')
 
