@@ -5,18 +5,14 @@ This repository contains the code used in the paper titled **"[Insert full paper
 ## 📁 Repository Structure
 
 ```
-.
-├── data/                            # Processed or raw data (if shareable)
-├── results/                         # Output folder for generated plots/results
-├── scripts/
-│   ├── fig1_generate_projection.R   # Code for Figure 1
-│   ├── fig2_power_comparison.R      # Code for Figure 2
-│   ├── fig3_real_data_analysis.R    # Code for Figure 3
-│   ├── ...
-│   └── helper_functions.R           # Utility functions used across scripts
-├── install_packages.R               # Installs required R packages
-├── README.md                        # This file
-└── session_info.txt                 # R session info for reproducibility
+├── README.md
+└── code_submitted/
+    ├── approximate_orthogonality/     # Simulation for Approximate Orthogonality section
+    ├── cleary_data_mean_comparison/   # Perturb-seq data analysis (Cleary et al.)
+    ├── code_paper/                    # Core functions and utilities
+    ├── jinhong_deviance/              # Application to Lupus study (Jinhong et al.)
+    ├── main_simulation/               # Type-I error and power assessment
+    └── try_Cleary_data/               # Preprocessed data for Cleary Perturb-seq analysis
 ```
 
 ## 🛠️ Setup Instructions
