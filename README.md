@@ -1,6 +1,7 @@
 # Adaptive Projection Manuscript Code
 
-This repository contains the code used in the paper titled **"[Insert full paper title here]"**, currently under review. The code implements statistical procedures and generates all the figures and tables included in the manuscript.
+This repository contains the code used in the paper titled **"Adaptive Projected Two-Sample Comparisons
+for Single-Cell Expression Data"**, currently under review. The code implements statistical procedures and generates all the figures and tables included in the manuscript.
 
 ## 📁 Repository Structure
 
@@ -8,9 +9,9 @@ This repository contains the code used in the paper titled **"[Insert full paper
 ├── README.md
 └── code_submitted/
     ├── approximate_orthogonality/     # Simulation for Approximate Orthogonality section
-    ├── cleary_data_mean_comparison/   # Perturb-seq data analysis (Cleary et al.)
+    ├── cleary_data_mean_comparison/   # Perturb-seq data analysis
     ├── code_paper/                    # Core functions and utilities
-    ├── jinhong_deviance/              # Application to Lupus study (Jinhong et al.)
+    ├── jinhong_deviance/              # Application to a Lupus study
     ├── main_simulation/               # Type-I error and power assessment
     └── try_Cleary_data/               # Preprocessed data for Cleary Perturb-seq analysis
 ```
