@@ -12,7 +12,7 @@ This repository contains the code used in the paper titled **"Adaptive Projected
     ├── code_paper/                    # Core functions and utilities
     ├── jinhong_deviance/              # Application to a Lupus study [2]
     ├── main_simulation/               # Type-I error and power assessment
-    └── try_Cleary_data/               # Preprocessed data for Cleary Perturb-seq analysis
+    └── try_Cleary_data/               # Preprocessed data for Perturb-seq analysis [1]
 ```
 
 ## References
