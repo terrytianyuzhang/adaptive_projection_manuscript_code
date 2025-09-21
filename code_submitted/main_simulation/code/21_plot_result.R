@@ -1,6 +1,9 @@
 library(ggplot2)
 library(ggpubr)
-work_directory <- './main_simulation/'
+library(data.table)
+rm(list = ls())
+
+work_directory <- '/Users/tianyuzhang/Documents/adaptive_projection_manuscript_code/code_submitted/main_simulation/'
 settings <- c('InfGlobal_hard', 'InfProject_hard', 'InfAlternative_hard_pc1', 'InfAlternative_hard_pc2')
 # settings <- c('InfGlobal_hard_no_truncation', 'InfProject_hard_no_truncation', 'InfAlternative_hard_no_truncation_pc1', 'InfAlternative_hard_no_truncation_pc2')
 
@@ -121,9 +124,9 @@ for(setting_index in 1:length(settings)){
         plot_list[[setting_index]] <- plot_list[[setting_index]] + ylim(c(0,0.3))
       }
     
-      if(SIMULATION_BATCH %in% c('InfAlternative_hard_pc2')){
+      if(SIMULATION_BATCH %in% c('InfAlternative_hard_pc1', 'InfAlternative_hard_pc2')){
         print(setting_index)
-        plot_list[[setting_index]] <- plot_list[[setting_index]] + ylim(c(0.8,1))
+        plot_list[[setting_index]] <- plot_list[[setting_index]] + ylim(c(0,1))
       }
 }
 
