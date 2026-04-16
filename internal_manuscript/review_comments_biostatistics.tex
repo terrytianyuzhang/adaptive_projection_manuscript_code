@@ -74,39 +74,63 @@ Major Comments\\
 It would help if the introduction and early parts of Section 2 more clearly delineated which components are novel versus adaptations of existing semiparametric / high-dimensional inference tools. For instance, to what extent is the one-step correction with sparse PCs conceptually new relative to previous debiasing approaches for high-dimensional linear functionals, and what is the precise innovation in the “anchored projection” compared with prior two-sample tests based on learned discriminant directions?
 \end{shaded}
 
+\noindent\textbf{Response.}
+Thank you for this helpful suggestion. We will revise the Introduction and the beginning of the methodology section to distinguish more clearly between the general semiparametric one-step framework and the new ingredients specific to our problem. The one-step idea itself is adapted from established semiparametric and double-machine-learning theory, but its application to a sparse-PC projected mean contrast requires deriving the influence function for the sparse-PC projection target and showing that the first-order projection-estimation bias is asymptotically negligible under high-dimensional nuisance estimation. We will also clarify that the anchored projection test is designed for a different inferential goal: it targets the global null while stabilizing learned discriminant directions that can degenerate under the null, by anchoring them to a regular unsupervised projection such as a sparse PC.
+
 \begin{shaded}
 2. Position the work more explicitly in the high-dimensional two-sample testing literature.
 The paper cites several related methods (e.g., tests based on global T2–type statistics, sparse discriminant directions, and clustering-based approaches), but the connections remain somewhat qualitative. A brief subsection or paragraph comparing the proposed tests to key existing two-sample tests—both in terms of assumptions (e.g., sparsity structure, covariance conditions) and the null/alternative they target—would help readers better understand when the proposed methods are preferable.
 \end{shaded}
 
+\noindent\textbf{Response.}
+We agree. We will expand the related-work discussion to compare our procedures with global quadratic-form tests, sparse and screening-based high-dimensional tests, projection-based tests, and contrastive dimension-reduction approaches. The revised discussion will emphasize that global tests are most natural for detecting any departure from equality, sparse tests focus on coordinate-level alternatives, and our debiased projected test targets interpretable low-dimensional contrasts associated with sparse gene modules. We will also clarify that the anchored test is preferable when the primary goal is global detection and the projection direction is estimated by a flexible, potentially supervised procedure.
+
 \begin{shaded}
     3. Interpretation and practical plausibility of Assumption 2.2 and Theorem 2.3 conditions. The conditions around approximate consistency of $u^{(-m)}$, the uniform integrability assumptions, and the $n^{-1 / 4}$ rate requirements for estimating $\mu_X$, $\mu_Z$ and $\Sigma$ in Theorem 2.3 are mathematically reasonable but may be hard to verify in practice. It would be useful to (i) provide more intuition about when these conditions are expected to hold in realistic scRNA-seq settings, and (ii) comment on whether milder rates (e.g., allowing somewhat slower convergence of $\Sigma$ ) would still yield a valid approximation in finite samples.
 \end{shaded}
+
+\noindent\textbf{Response.}
+Thank you for pointing this out. We will add intuition explaining that approximate consistency of the projection is plausible when the relevant gene module is stable across splits and the covariance structure has a clear leading direction within the module. The uniform integrability assumptions mainly exclude extremely heavy-tailed projected scores and are partly motivated by the preprocessing and variance normalization used in the applications. We will also clarify that the $n^{-1/4}$ nuisance-rate condition is an asymptotic sufficient condition for the one-step expansion; in finite samples, slower nuisance estimation may still give useful approximations when the remainder terms are numerically small, but the theorem does not formally guarantee validity in that regime. This distinction will be stated more explicitly.
 
 \begin{shaded}
 4. Choice and implementation details of sparse PCA.
 Since the performance of both debiased and anchored tests depends strongly on the estimated sparse PCs, please provide more concrete information: which exact sPCA algorithm was used (e.g., reference and software), how sparsity/tuning parameters were chosen, and how sensitive the results are to these choices. A short sensitivity analysis (e.g., different numbers of nonzero loadings or alternative sPCA methods) would be helpful.
 \end{shaded}
 
+\noindent\textbf{Response.}
+We will provide the implementation details for sparse PCA. Specifically, we use the \texttt{PMA} implementation of sparse PCA, with the sparse loading obtained by maximizing the empirical projected variance subject to an $\ell_2$ normalization and an $\ell_1$ sparsity constraint. The sparsity parameter is selected by the package cross-validation routine on the training folds only, so the held-out fold used for testing remains independent of the projection-estimation step. We will also add a brief sensitivity discussion noting that the qualitative conclusions in the real-data example are driven by stable split-wise active gene sets; if the analysis goal is highly sensitive to exact support recovery, users should report support stability across folds or across nearby sparsity parameters.
+
 \begin{shaded}  
 5. Simulation design and coverage.
 The simulations nicely demonstrate type-I error and power for a specific zero-inflated Gaussian block-correlation structure. Given the broad applicability of the method, I wonder if the authors could (or at least briefly discuss): i) additional covariance structures (e.g., more diffuse correlations or non-block patterns); ii)heavier-tailed distributions or different sparsity levels in the mean shift; iii) more extreme sample-size imbalance between groups. iv) Even a short summary in the Supplement (with pointers in the main text) would reassure readers about robustness.
 \end{shaded}
+
+\noindent\textbf{Response.}
+We appreciate this suggestion. We will clarify that the existing simulations were chosen to mimic zero-inflated normalized scRNA-seq data and to separate the behavior of projected-null and global-null procedures. We will also add a discussion of robustness limitations: if the signal is highly diffuse across many weak directions, sparse projected tests may lose power relative to global quadratic-form tests; if the covariance structure is weak or unstable, the interpretability of sparse-PC directions may be reduced; and strong imbalance can affect the variance and nuisance estimation quality. We will point readers to the existing larger-dimensional and block-covariance simulations, and note that broader covariance, tail, sparsity, and imbalance regimes are valuable targets for future sensitivity analysis.
 
 \begin{shaded}
 6. Interpretation of the lupus application results.
 The real-data analysis is interesting, but the statistical conclusions could be translated more clearly into biological insight. For example, beyond reporting p-values and overlap counts, it would be helpful to more explicitly connect what the significant PCs and anchored directions suggest about specific pathways or cell-type–specific processes, and to contrast these findings with those from standard marginal methods (e.g., what new insight do we gain by using projected tests rather than a list of gene-level p-values?).
 \end{shaded}
 
+\noindent\textbf{Response.}
+We agree and will strengthen the interpretation of the lupus analysis. The revised discussion will explain that significant sparse-PC directions identify coordinated groups of correlated genes, while the anchored-Lasso direction identifies a smaller discriminative set that need not be highly correlated. We will also emphasize the comparison with marginal negative-binomial regression: marginal tests identify individual genes, whereas our projected tests assess whether a coordinated gene set produces a statistically significant group-level contrast. This provides additional biological context, especially for interferon-related and immune-response genes whose joint behavior may be more informative than a long list of separate gene-level p-values.
+
 \begin{shaded}
 7. Justification of pseudo-bulk and normalization choices.
 In Section 5.1, the authors aggregate counts to pseudo-bulk at the individual level and then apply shifted log-normalization. A brief rationale for this particular pipeline, along with comments on whether the proposed methods would still apply (or need modification) to cell-level data, would be useful—especially since different preprocessing choices are common in scRNA-seq practice.
 \end{shaded}
 
+\noindent\textbf{Response.}
+Thank you for raising this point. We will add a rationale for using individual-level pseudo-bulk profiles: the scientific comparison in the lupus study is between individuals with SLE and healthy controls, and pseudo-bulking makes the sample unit the individual, which better matches the IID two-sample formulation and avoids treating cells from the same person as independent. The shifted log-normalization stabilizes scale and reduces the impact of library-size differences before residualization and variance normalization. We will also clarify that cell-level applications are possible in principle, but they require modeling within-subject dependence or using resampling/aggregation strategies that preserve the correct experimental unit.
+
 \begin{shaded}
 8. Multiple testing and interpretation across PCs.
 For the debiased tests along PC1–PC4, it would be good to clarify how multiple testing is handled when jointly interpreting these projected nulls. Is any correction applied when simultaneously testing four projections? If not, perhaps note that the p-values are marginal for each direction and suggest how one might adjust them if using multiple PCs in practice.
 \end{shaded}
+
+\noindent\textbf{Response.}
+We will clarify that the reported PC1--PC4 p-values are marginal p-values for the corresponding projected null hypotheses. They were used to interpret a small prespecified set of leading directions, rather than as a large-scale discovery procedure. If a user wants simultaneous inference across several projected directions, standard corrections such as Bonferroni or Benjamini--Hochberg can be applied to the collection of projected tests, with the choice depending on whether family-wise error or false discovery rate control is desired.
 
 \newpage
 \section{Reviewer 2's Comments}
@@ -115,11 +139,17 @@ For the debiased tests along PC1–PC4, it would be good to clarify how multiple
     This manuscript proposes adaptive projection-based two-sample tests for high-dimensional gene expression data.  The manuscript is generally clearly written and the methodological framework is conceptually appealing. However, several aspects of the paper require clarification and strengthening before the contribution can be fully assessed. Overall, I believe the paper contains promising ideas but requires substantial revision before it can be considered for publication.
 \end{shaded}
 
+\noindent\textbf{Response.}
+We thank the reviewer for the thoughtful and constructive comments. We will revise the manuscript to improve the positioning relative to existing high-dimensional testing methods, clarify the data-adaptive projected null and debiasing argument, provide more implementation detail, and strengthen the discussion of robustness, simulations, and biological interpretation.
+
 \begin{shaded}
     1. Positioning relative to existing high-dimensional testing literature
     
 The manuscript motivates projection-based testing using sparse principal component directions. However, there exists a substantial literature on projection-based and sparse high-dimensional two-sample testing procedures. The paper would benefit from a clearer discussion of how the proposed approach differs from or improves upon existing methods such as projection pursuit tests, sparse mean testing approaches, and screening-based two-sample testing procedures. Clarifying the conceptual novelty and positioning within the broader literature would significantly strengthen the contribution.
 \end{shaded}
+
+\noindent\textbf{Response.}
+We agree. We will expand the Introduction to compare our procedures with global high-dimensional two-sample tests, sparse and screening-based methods, projection-based tests, and contrastive dimension-reduction approaches. The revised text will emphasize that our debiased projected test targets a projected scientific question, namely whether the mean difference is nonzero along an interpretable sparse direction, while accounting for the fact that this direction is learned from data. This differs from tests that focus only on a global rejection or on coordinate-wise discoveries. We will also clarify that the anchored procedure is intended for global testing with flexible learned projections, especially when supervised discriminant directions may degenerate under the null.
 
 \begin{shaded}
     2. Statistical formulation of the projected hypothesis
@@ -131,6 +161,9 @@ $$
 where the projection direction $u$ is estimated from the data. When the projection direction is random, the null hypothesis effectively depends on a data-dependent quantity. While the manuscript proposes a debiasing approach to address this issue, it would be helpful to more clearly explain how the inferential validity is preserved when the projection direction is estimated from the same dataset used for testing. In particular, a clearer explanation of the theoretical justification for the proposed correction would improve readability.
 \end{shaded}
 
+\noindent\textbf{Response.}
+Thank you for identifying this point of possible confusion. We will clarify that the population projected null is defined with respect to the population projection direction, such as the leading population PC $v_1$, while the statistic uses fold-specific estimates $v_1^{(-m)}$. Cross-fitting separates the data used to estimate the projection from the data used to evaluate the projected mean contrast, which removes the most direct double-dipping. However, cross-fitting alone does not fully remove the first-order bias caused by projection estimation under a general projected null. The one-step correction estimates and subtracts this first-order effect through the influence function, leaving a leading term that is asymptotically Gaussian under the stated nuisance-rate and regularity conditions.
+
 \begin{shaded}
     3. Debiasing via double machine learning
 
@@ -141,12 +174,18 @@ It would be helpful to clarify: 1. what the nuisance parameter is in this framew
 Since DML-based inference relies on Neyman orthogonality and certain rate conditions for nuisance estimation, it would be useful to explicitly state the assumptions under which the proposed procedure is theoretically valid.
 \end{shaded}
 
+\noindent\textbf{Response.}
+We will revise the exposition to make the DML components explicit. The nuisance quantities include the data-adaptive projection direction, the common covariance matrix, the group means used in the influence-function correction, and the associated eigenvalue/eigenvector quantities. Cross-fitting is implemented by estimating these nuisances on $\mathcal{D}^{(-m)}$ and evaluating the corrected projected contrast on the held-out fold $\mathcal{D}^{(m)}$, then aggregating over folds. We will also highlight the assumptions needed for validity: stability/consistency of the projection, non-degenerate projected variance, equal covariance matrices for the debiased PC result, a positive eigengap, uniform integrability, and sufficiently accurate nuisance estimation so that the one-step remainder is negligible.
+
 \begin{shaded}
     4. Robustness of projection-based testing
 
 Projection-based tests are generally most powerful when signals align with a small number of directions. It would be helpful if the authors could discuss how the proposed method performs when signals are distributed across many weak directions rather than concentrated in a sparse subspace. In addition, since the projection direction is estimated using PCA, the method implicitly assumes that the signal structure is reflected in the covariance structure. It would be useful to discuss how sensitive the method is to situations where mean differences occur in directions that are not strongly represented in the covariance eigenstructure.
 \end{shaded}
 
+
+\noindent\textbf{Response.}
+We agree with this assessment. We will add discussion that sparse projection tests are best suited for alternatives concentrated in a small number of interpretable directions or gene modules. When the signal is spread over many weak coordinates, global quadratic-form tests may be more powerful, although they generally provide less localization. We will also clarify that PC-based projected tests are most interpretable when the mean shift aligns with covariance or co-expression structure. If the mean difference is not represented in the covariance eigenstructure, the debiased sparse-PC tests may miss it; this motivates the anchored projection test, which can incorporate supervised discriminant directions and therefore adapt toward directions with stronger group separation.
 
 \begin{shaded}
     5. Simulation design
@@ -156,11 +195,17 @@ The simulation study appears somewhat aligned with the structure of the proposed
 Because the proposed method relies on identifying such directions, this design may favor projection-based tests. It would strengthen the empirical evaluation to include additional scenarios where: 1. the signal is not aligned with the leading principal component. 2. the signal is distributed across multiple directions. 3.the covariance structure is less structured.
 \end{shaded}
 
+\noindent\textbf{Response.}
+Thank you for this important point. We will clarify that the small simulation where the covariance is $3v_1v_1^\top+I_p$ is intended only as a diagnostic illustration of why the plug-in statistic behaves differently under the global and projected nulls. The main simulation section already considers $p=10^3$ and includes an alternative in which the signal is stronger along $v_2$ than along $v_1$, as well as a projected-null setting where the mean difference is orthogonal to the tested leading direction. We will revise the text to make these design choices clearer and add a discussion of the limitations of highly structured covariance designs.
+
 \begin{shaded}
     6. Real data analysis
 
 The real data example illustrates the application of the proposed method but could be strengthened by comparing the results with standard differential expression approaches commonly used in single-cell RNA-seq analysis. Providing some biological interpretation of the identified gene sets would also help demonstrate the practical utility of the method.
 \end{shaded}
+
+\noindent\textbf{Response.}
+We agree. We will strengthen the real-data interpretation by more explicitly comparing our active gene sets with standard marginal negative-binomial differential-expression results. We will explain that the marginal analysis identifies individual genes, whereas our projected tests assess coordinated variation across sparse gene sets. We will also expand the biological interpretation of the lupus T4-cell results, including the immune-response and interferon-related genes identified in significant PC directions and the more parsimonious gene set selected by the anchored-Lasso direction.
 
 \begin{shaded}
 Minor Comments
@@ -169,20 +214,32 @@ Page 3, Literature review.
 The discussion of related work could be expanded to better position the proposed method relative to existing high-dimensional testing procedures.
 \end{shaded}
 
+\noindent\textbf{Response.}
+We will expand the related-work discussion in the Introduction to position the method relative to global, sparse, screening-based, projection-based, and contrastive high-dimensional testing procedures.
+
 \begin{shaded}
 Page 5, Sparse PCA step.
 The manuscript states that the projection direction is obtained via sparse PCA. However, the exact optimization problem used for sparse PCA is not specified. Providing the explicit objective function and describing how tuning parameters are selected would improve clarity and reproducibility.
 \end{shaded}
+
+\noindent\textbf{Response.}
+We will add the sparse PCA objective explicitly and describe the tuning procedure. The projection direction is estimated by maximizing empirical projected variance subject to $\ell_2$ normalization and an $\ell_1$ sparsity constraint, with the sparsity parameter selected by cross-validation on the training folds.
 
 \begin{shaded}
 Page 6, Algorithm description.
 It would be helpful to include a concise algorithmic summary describing the full testing pipeline, including projection estimation, sample splitting, debiasing, and p-value calculation.
 \end{shaded}
 
+\noindent\textbf{Response.}
+We will add a concise testing-pipeline summary describing sample splitting, training-fold projection and nuisance estimation, held-out-fold debiasing, aggregation, studentization, and p-value calculation. We will also summarize the analogous anchored-test pipeline.
+
 \begin{shaded}
 Page 8, Simulation dimensionality.
 The simulations consider p = 100 variables. Many genomic datasets involve thousands of genes. Evaluating performance in larger dimensional settings would strengthen the empirical study.
 \end{shaded}
+
+\noindent\textbf{Response.}
+We will clarify that the $p=100$ experiment is a diagnostic visualization only. The main type-I error and power simulations use $p=10^3$, which is closer to genomic applications after feature selection.
 
 \begin{shaded}
 Supplementary Materials, Section A.
@@ -192,6 +249,9 @@ $$
 $$
 which ensures that the leading principal component corresponds to the signal direction. This design may favor projection-based tests. Additional simulation scenarios with more general covariance structures would help evaluate robustness.  
 \end{shaded}
+
+\noindent\textbf{Response.}
+We agree that this diagnostic construction is favorable if viewed as the main empirical evaluation. We will clarify that this simulation is used only to illustrate plug-in behavior under global and projected nulls, and point readers to the main larger-dimensional simulations and the block-diagonal zero-inflated simulation, which include settings where the signal is not concentrated in the leading PC direction.
 
 \bibliography{main}
 \bibliographystyle{plain}

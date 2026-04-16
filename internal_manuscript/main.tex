@@ -48,6 +48,14 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
+\newenvironment{revblock}
+  {\color{teal}}
+  {}
+
+  \newenvironment{revblock2}
+  {\color{olive}}
+  {}
+  
 \begin{document}
 
 \title{Adaptive Projected Two-Sample Comparisons \\for Single-Cell Gene Expression Data
@@ -72,7 +80,7 @@
 We study high-dimensional two-sample mean comparison and address the curse of dimensionality through data-adaptive projections. Leveraging the low-dimensional and localized signal structures commonly seen in single-cell genomics data, our first proposed method identifies a sparse, informative low-dimensional subspace and then performs statistical inference restricted to this subspace. To address the double-dipping issue---arising from using the same data for projection and inference---we develop a debiased projected estimator using the semiparametric double-machine learning framework. The resulting inference not only has the usual frequentist validity but also provides useful information on the potential location of the signal due to the sparsity of the projection. Our second method uses a more flexible projection scheme to improve the power against the global null hypothesis and avoid the degeneracy issue commonly faced by existing methods. It is particularly useful when debiasing is practically challenging or when the informative signal is not well-captured by the subspace. Experiments on synthetic data and real datasets demonstrate the theoretical promise and interpretability of the proposed methods.  
 \end{abstract}
 
-% \tableofcontents
+\tableofcontents
 
 \section{Introduction}\label{section: intro}
 
@@ -480,7 +488,7 @@ We set up a simulation study to illustrate an application scenario of \Cref{th: 
 
 The mean difference between $\mu_X-\mu_Z$ is on the second block: ${\rm supp}(\mu_X-\mu_Z) = \mathcal{S}_2$. The true leading PCs satisfy ${\rm supp}(v_j) = \mathcal{S}_j$ for $j = 1,2$. We apply sPCA to estimate the leading PCs. The PC1, $v_1^{(-m)}$, has larger non-zero loadings in the first block $\mathcal{S}_1$ and has some non-zero values in the other blocks due to randomness. On the other hand, PC2 $v_2^{(-m)}$ are mostly supported on the second block $\mathcal{S}_2$ where the mean difference signal is established. Thus $v_1^{(-m)}$ satisfies the condition in Theorem \ref{th: approximate orthogonal} while $v_2^{(-m)}$ does not. The distribution of $T_{\rm pi}(v_1)$ and $T_{\rm pi}(v_2)$ are shown in \Cref{fig: marginal and plug in}B. Although the marginal distributions are irregular (non-Gaussian), it is not hard to obtain an approximately Gaussian statistic under the given moderate sample sizes. We note that sPCA is crucial for this experiment---using least square PCA leads to inflated type-I error because they do not localize ${\rm supp}(v_j^{(-m)})$ and assign loadings to all the dimensions, violating \Cref{eq: u has small residual}.
 
-In addition to sPCA, many other methods, including the popular clustering tool WGCNA \cite{langfelder2008wgcna}, can be applied to obtain the projection direction $u^{(-m)}$. Based on the correlation structure between the dimensions, WGCNA divides the total $p$ dimensions into multiple modules $\hat{\mathcal{S}}_i\subset [p]$. Within each module, it performs PCA to obtain a vector $u_i^{(-m)}$ supported on $\hat{\mathcal{S}}_i$, which is called eigengene (\cite{langfelder2007eigengene}, equation (29)), serving as a summary of the variation pattern. \Cref{th: approximate orthogonal} can also be applied to this setting.
+We implemented the $l_1$-penalized sPCA framework introduced in \cite{witten2009penalized}. See \Cref{app: sPCA} for more details of this method. In addition to sPCA, many other methods, including the popular clustering tool WGCNA \cite{langfelder2008wgcna}, can be applied to obtain the projection direction $u^{(-m)}$. Based on the correlation structure between the dimensions, WGCNA divides the total $p$ dimensions into multiple modules $\hat{\mathcal{S}}_i\subset [p]$. Within each module, it performs PCA to obtain a vector $u_i^{(-m)}$ supported on $\hat{\mathcal{S}}_i$, which is called eigengene (\cite{langfelder2007eigengene}, equation (29)), serving as a summary of the variation pattern. \Cref{th: approximate orthogonal} can also be applied to this setting.
 
 \subsection{Type-I error and power assessment}
 
@@ -1540,6 +1548,21 @@ in \Cref{appfig: funny lasso}, where the intermediate quantities are similarly c
 
 
 \section{More Details on Simulated Data}
+
+\subsection{Sparse PCA Estimation}\label{app: sPCA}
+
+We implemented the popular $l_1$-penalized sparse PCA framework introduced in \cite{witten2009penalized}. The authors of this work applied an iterative algorithm to solve a Penalized Matrix Decomposition of the data matrix (a low-rank singular value decomposition with $l_1$-penalty on the singular vectors). The explicit formula of the objective function is Equation~(2.7) in \cite{witten2009penalized}. The hyperparameters in this optimization problem are determined using cross-validation. The details of this procedure are described in the manual of function \texttt{SPC.cv} in \texttt{R} package \texttt{PMA}. We included it in the manuscript for our readers' ease of reference. 
+
+``This method only performs cross-validation for the first sparse principal component. It does so
+by performing the following steps nfolds times: (1) replace a fraction of the data with missing
+values, (2) perform SPC on this new data matrix using a range of tuning parameter values, each
+time getting a rank-1 approximation $udv^\top$ where $v$ is sparse, (3) measure the mean squared
+error of the rank-1 estimate of the missing values created in step 1.
+Then, the selected tuning parameter value is that which resulted in the lowest average mean squared
+error in step 3.
+In order to perform cross-validation for the second sparse principal component, apply this function
+to $X-udv^\top$ where $udv^\top$ are the output of running SPC on the raw data $X$."
+
 
 \subsection{Simulation Study for Type-I Error and Power}\label{app: simulated data}
 We will use the notation that $a_s$ is a vector of length $s$ whose elements are all equal to $a\in\mathbb{R}$ and $I_p$ is an identity matrix of dimension $p\times p$.
