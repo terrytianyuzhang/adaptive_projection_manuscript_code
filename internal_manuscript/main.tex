@@ -595,7 +595,13 @@ For the perturbation ADO, the majority of the discriminative power (of the group
 
 We also observe overlap in the projective structure between certain perturbations. Notably, the projective directions for CEBPG, STK11, KIDINS220, and TLR1 are all concentrated within module 37, implying potential functional similarity. Likewise, AHR, STAT1, IFNAR1, STAT2, and TYK2 induce a common impact on modules 31 and 42.
 
-Gene Ontology is a framework facilitating gene function description. A GO enrichment analysis provides p-values that quantify how significantly a set of genes is overrepresented in a specific functional category, compared to what would be expected by chance. In \Cref{fig: cleary_loading_concentration}B, we present the GO enrichment results for selected gene modules. The modules are primarily enriched in pathways related to immune response and cell signaling. Notably, the functional annotations of Module 15 are almost a subset of those of Module 37. The pathways enriched in Module 31 show less overlap with those in Modules 15 and 37. It is scientifically intriguing to investigate the functional similarity among AHR, STAT1, IFNAR1, STAT2, and TYK2, all of which have unique impacts on this module. Genes in Module 34 do not show significant enrichment for any pathway after Bonferroni correction. Module 42 consists mainly of mitochondrial genes. We retain Module 42 in the analysis due to its interesting overlapping pattern with Module 31 in \Cref{fig: cleary_loading_concentration}A.
+\begin{revblock}
+Gene Ontology is a framework facilitating gene function description. A GO enrichment analysis provides p-values that quantify how much genes in a specific biological functional category are overrepresented in a set of genes, compared to what would be expected by chance. A small p-value for a pathway X should be interpreted as ``gene module contains many genes in pathway X than what would happen randomly". In \Cref{fig: cleary_loading_concentration}B, we present the GO enrichment results for selected gene modules. The modules are primarily enriched in pathways related to immune response and cell signaling. Notably, the functional annotations of Module 15 are almost a subset of those of Module 37. The pathways enriched in Module 31 show less overlap with those in Modules 15 and 37. 
+
+The differential expression results well replicate some of the known functional similarity. For example, STAT1, STAT2 and TYK2 are all part of the JAK/STAT signaling pathway \citep{rawlings2004jak, hu2021jak} and they selectively impact gene module 31. TYK2 participates in phosphorylating the membrane cytokine-receptor upon ligand binding. STAT1 and STAT2 then dock at these sites, are phosphorylated by JAKs, and activate further downstream gene expression. All three genes, as well as IFNAR1, are well known for their central roles in the type I interferon signaling pathway \citep{velazquez1992protein,qureshi1995tyrosine,prchal2012tyk2}.
+
+Genes in Module 34 do not show significant enrichment for any pathway after Bonferroni correction. Module 42 consists mainly of mitochondrial genes. We retain Module 42 in the analysis due to its interesting overlapping pattern with Module 31 in \Cref{fig: cleary_loading_concentration}A.
+\end{revblock}
 
 
 \section{Discussion}
@@ -1551,17 +1557,13 @@ in \Cref{appfig: funny lasso}, where the intermediate quantities are similarly c
 
 \subsection{Sparse PCA Estimation}\label{app: sPCA}
 
-We implemented the popular $l_1$-penalized sparse PCA framework introduced in \cite{witten2009penalized}. The authors of this work applied an iterative algorithm to solve a Penalized Matrix Decomposition of the data matrix (a low-rank singular value decomposition with $l_1$-penalty on the singular vectors). The explicit formula of the objective function is Equation~(2.7) in \cite{witten2009penalized}. The hyperparameters in this optimization problem are determined using cross-validation. The details of this procedure are described in the manual of function \texttt{SPC.cv} in \texttt{R} package \texttt{PMA}. We included it in the manuscript for our readers' ease of reference. 
+\begin{revblock}
+We implemented the $\ell_1$-penalized sparse PCA framework introduced by \cite{witten2009penalized}. The authors applied an iterative algorithm to solve a penalized matrix decomposition of the data matrix, which can be viewed as a low-rank singular value decomposition with an $\ell_1$ constraint on the singular vectors. The explicit objective function is given in Equation~(2.7) of \cite{witten2009penalized}. The tuning parameter in this optimization problem is selected by cross-validation. The details of this procedure are described in the manual for the \texttt{SPC.cv} function in the \texttt{R} package \texttt{PMA} \citep{PMA}. We include a short summary here for readers' convenience.
 
-``This method only performs cross-validation for the first sparse principal component. It does so
-by performing the following steps nfolds times: (1) replace a fraction of the data with missing
-values, (2) perform SPC on this new data matrix using a range of tuning parameter values, each
-time getting a rank-1 approximation $udv^\top$ where $v$ is sparse, (3) measure the mean squared
-error of the rank-1 estimate of the missing values created in step 1.
-Then, the selected tuning parameter value is that which resulted in the lowest average mean squared
-error in step 3.
-In order to perform cross-validation for the second sparse principal component, apply this function
-to $X-udv^\top$ where $udv^\top$ are the output of running SPC on the raw data $X$."
+The \texttt{SPC.cv} function performs cross-validation for the first sparse principal component. It repeats the following steps across folds: (1) replace a fraction of the entries in the data matrix with missing values; (2) apply \texttt{SPC} to this partially observed data matrix over a range of tuning parameter values, each time obtaining a rank-one approximation $udv^\top$ with sparse $v$; and (3) measure the mean squared prediction error for the missing entries created in step 1. The selected tuning parameter is the one with the lowest average mean squared prediction error in step 3.
+
+To perform cross-validation for the second sparse principal component, the same procedure is applied to the deflated matrix $X-udv^\top$, where $udv^\top$ is the rank-one component obtained by applying \texttt{SPC} to the original data matrix $X$.
+\end{revblock}
 
 
 \subsection{Simulation Study for Type-I Error and Power}\label{app: simulated data}
