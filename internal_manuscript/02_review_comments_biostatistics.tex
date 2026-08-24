@@ -81,14 +81,33 @@ Major Comments\\
 It would help if the introduction and early parts of Section 2 more clearly delineated which components are novel versus adaptations of existing semiparametric / high-dimensional inference tools. For instance, to what extent is the one-step correction with sparse PCs conceptually new relative to previous debiasing approaches for high-dimensional linear functionals, and what is the precise innovation in the “anchored projection” compared with prior two-sample tests based on learned discriminant directions?
 \end{shaded}
 
+Thank you for the suggestions. We added more details in the introduction to highlight the contribution of this work:
+
+\begin{itemize}
+    \item For the one-step correction proposal, we work under the general theoretical framework. However, an eigenvector is not a simple linear mapping of the distribution. The exact details of the one-step correction, as well as its theoretical guarantee, were novel in this work. 
+    \item For the anchored projection proposal, we emphasized that regular Gaussian statistics can be achieved under mild conditions without debiasing. Cross-fitting framework, using PC1 as the anchoring proxy and the equivalent means under the null hypothesis enabled this interesting regime. It has never been explored in the literature that this simple and application-relevant scheme would lead to regular inferential procedures. The closest one in the literature would be \cite{liu2022multiple}: However, their result was not established under the null hypothesis (because there was no proxy anchoring direction), the classifier aims at the unique optimal direction, and they implemented sample-splitting rather than cross-fitting (although they proposed procedures to enhance the power due to a smaller sample size).
+\end{itemize}
+
 \begin{shaded}
 2. Position the work more explicitly in the high-dimensional two-sample testing literature.
 The paper cites several related methods (e.g., tests based on global T2–type statistics, sparse discriminant directions, and clustering-based approaches), but the connections remain somewhat qualitative. A brief subsection or paragraph comparing the proposed tests to key existing two-sample tests—both in terms of assumptions (e.g., sparsity structure, covariance conditions) and the null/alternative they target—would help readers better understand when the proposed methods are preferable.
 \end{shaded}
 
+We appreciate your suggestion. We added one paragraph at the end of the introduction section to discuss several canonical high-dimensional mean comparison methods. Although this work targets high-dimensional mean comparison, the specific mathematical formulation of our problem is novel and more structured compared with the most commonly considered global null. Our method was motivated more by the debiasing and cross-validation literature---so in this paragraph, we also emphasize this difference and try not to mislead the readers to the line of research reviewed in \cite{huang2022overview}.
+
 \begin{shaded}
     3. Interpretation and practical plausibility of Assumption 2.2 and Theorem 2.3 conditions. The conditions around approximate consistency of $u^{(-m)}$, the uniform integrability assumptions, and the $n^{-1 / 4}$ rate requirements for estimating $\mu_X$, $\mu_Z$ and $\Sigma$ in Theorem 2.3 are mathematically reasonable but may be hard to verify in practice. It would be useful to (i) provide more intuition about when these conditions are expected to hold in realistic scRNA-seq settings, and (ii) comment on whether milder rates (e.g., allowing somewhat slower convergence of $\Sigma$ ) would still yield a valid approximation in finite samples.
 \end{shaded}
+
+Thank you for the comment.
+
+We use the uniform integrability assumption to rigorously state and establish the law of large numbers in our high-dimensional setting. They are basically stating that the sample means of some statistics would converge to their population means. In a high-dimensional setting, the samples are from distributions of ``increasing" dimension, the population means are no longer fixed quantities (see the triangular array comment in Remark~2.2), and the standard law of large numbers does not strictly apply. This is almost the minimal assumption for statistics to function, and we believe it is mild.
+
+The $n^{-1/4}$ convergence rate for the covariance matrix is standard in the sense that difference debiasing problems usually end up requiring certain nuisance parameters to be estimated faster than this rate. However, as you noted, it is not trivial. In the spiked model setting, the minimax convergence rate is roughly $\sqrt{r\log p/n}$ where $p$ is the feature dimension and $r$ is the number of spikes \cite{cai2015optimal}. For polynomially increasing $p$ and fixed $r$, this rate is well-below the required $n^{-1/4}$.
+
+It was not easy to fundamentally improve this condition for the debiased proposal, which is similar for many typical semiparametric methods in the literature. However, the approximately orthogonality proposal in this manuscript does function under a less demanding setting: it does not need explicit estimation of the covariance matrix, and does not rely on matrix estimation quality assumptions.
+
+% (although it is a theoretically sufficient condition, not a necessary one, which didn't completely rule out the possibility). We found the other proposal established under approximately orthogonality is easy to engage with (although it trades for a weaker conclusion): it does not need explicit estimation of the covariance matrix, and the empirical estimation of classifier coefficients is less demanding under a finite sample setting.
 
 \begin{shaded}
 4. Choice and implementation details of sparse PCA.
@@ -105,10 +124,29 @@ The simulations nicely demonstrate type-I error and power for a specific zero-in
 The real-data analysis is interesting, but the statistical conclusions could be translated more clearly into biological insight. For example, beyond reporting p-values and overlap counts, it would be helpful to more explicitly connect what the significant PCs and anchored directions suggest about specific pathways or cell-type–specific processes, and to contrast these findings with those from standard marginal methods (e.g., what new insight do we gain by using projected tests rather than a list of gene-level p-values?).
 \end{shaded}
 
+Kathryn said:
+
+We used the GLMNB for the Lupus analysis because we were originally writing for statisticians and it seemed more familiar for them.  Now writing for Biostatistics I’m afraid we have to use one of the major packages for DE analysis.  DESeq2 is famous. Tim Barry has his SCEPTRE package. I think the latter is better, but prob’y we should use the former.  It is also customary to use FDR instead of Bonf.
+
+\textcolor{teal}{For comparisons, and biological insights, we have a good coverage PC4.    We need to make a stronger statement about what PC1 is identifying from a biological viewpoint.   Maybe AI could help us here.  If you are careful you can get some good citations.}   I see you do have good citations for a lot of your other claims.
+
+They say we didn’t compare our results to the standard analysis (currently GLMNBadj), but actually we did.    Once we replace this with a DE package, then we need to see what we gained and lost.  I guess we simply try to write things with more punch to make whatever message we have stronger -- having citations always makes the claims more impactful.  Currently, our better message might be with PC1, where these genes are not significant with multiple testing correction.
+
+Again, I don’t know why they say we didn’t do biological interpretation b/c we did!  3 of the anchor genes are not predicted by other methods.  Is there anything we can say about why (statistically) they come up with this analysis and none of the other approaches? 
+
+\textcolor{teal}{Genes in a module are correlated.}
+
+\textcolor{teal}{PC1 contrasts GLM NB ADJ, it has more positive.}
+
 \begin{shaded}
 7. Justification of pseudo-bulk and normalization choices.
 In Section 5.1, the authors aggregate counts to pseudo-bulk at the individual level and then apply shifted log-normalization. A brief rationale for this particular pipeline, along with comments on whether the proposed methods would still apply (or need modification) to cell-level data, would be useful—especially since different preprocessing choices are common in scRNA-seq practice.
 \end{shaded}
+
+The main motivation of aggregating single-cell level information to the individual level pseudo-bulk is to eliminate the dependency between cells within one individual. This choice didn't cause devastating power loss, as there is a good number of participants in this study. In the real-data section, we further clarified this motivation and acknowledged the difficulty of working with single-cell level information directly. The example in Section~5.2 is single-cell level, in which this individual-level clustering is absent. 
+
+The proposed method in principle works for single-cell data without log normalization as it relies on the central limit theorem rather than a more restricted parametric assumption. We applied a log transformation to unify the scaling of different genes---and for many researchers this is considered a ``standard" pipeline. As a complement, the results in the second example were not log transformed (we removed the batch effect using Poisson regression).
+
 
 \begin{shaded}
 8. Multiple testing and interpretation across PCs.
@@ -148,6 +186,12 @@ It would be helpful to clarify: 1. what the nuisance parameter is in this framew
 Since DML-based inference relies on Neyman orthogonality and certain rate conditions for nuisance estimation, it would be useful to explicitly state the assumptions under which the proposed procedure is theoretically valid.
 \end{shaded}
 
+We agree with you that the debiasing framework needs non-trivial conditions on the nuisance estimation.
+
+We added a paragraph to clarify how the cross-fitting is conducted to address point 2 you mentioned. {\tz need to add this}
+
+We added a remark after the main double machine learning theorem to explicitly identify the nuisance parameters and convergence rate requirements. {\tz need to add this}.
+
 \begin{shaded}
     4. Robustness of projection-based testing
 
@@ -175,6 +219,8 @@ Minor Comments
 Page 3, Literature review.
 The discussion of related work could be expanded to better position the proposed method relative to existing high-dimensional testing procedures.
 \end{shaded}
+
+We appreciate your suggestion. We added one paragraph at the end of the introduction section to discuss several canonical high-dimensional mean comparison methods. Although this work targets high-dimensional mean comparison, the specific mathematical formulation of our problem is novel and more structured compared with the most commonly considered global null. Our method was motivated more by the debiasing and cross-validation literature---so in this paragraph, we also emphasize this difference and try not to mislead the readers to the line of research reviewed in \cite{huang2022overview}.
 
 \begin{shaded}
 Page 5, Sparse PCA step.
