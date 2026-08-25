@@ -114,6 +114,18 @@ It was not easy to fundamentally improve this condition for the debiased proposa
 Since the performance of both debiased and anchored tests depends strongly on the estimated sparse PCs, please provide more concrete information: which exact sPCA algorithm was used (e.g., reference and software), how sparsity/tuning parameters were chosen, and how sensitive the results are to these choices. A short sensitivity analysis (e.g., different numbers of nonzero loadings or alternative sPCA methods) would be helpful.
 \end{shaded}
 
+We implemented the $\ell_1$-penalized sparse PCA framework introduced by \cite{witten2009penalized}. We added the following details in the appendix of the paper. 
+
+\begin{quote}
+The authors of \cite{witten2009penalized} applied an iterative algorithm to solve a penalized matrix decomposition of the data matrix, which can be viewed as a low-rank singular value decomposition with an $\ell_1$ constraint on the singular vectors. The explicit objective function is given in Equation~(2.7) of \cite{witten2009penalized}. The tuning parameter in this optimization problem is selected by cross-validation. The details of this procedure are described in the manual for the \texttt{SPC.cv} function in the \texttt{R} package \texttt{PMA} \cite{PMA}. We include a short summary here for readers' convenience.
+
+The \texttt{SPC.cv} function performs cross-validation for the first sparse principal component. It repeats the following steps across folds: (1) replace a fraction of the entries in the data matrix with missing values; (2) apply \texttt{SPC} to this partially observed data matrix over a range of tuning parameter values, each time obtaining a rank-one approximation $udv^\top$ with sparse $v$; and (3) measure the mean squared prediction error for the missing entries created in step 1. The selected tuning parameter is the one with the lowest average mean squared prediction error in step 3.
+
+To perform cross-validation for the second sparse principal component, the same procedure is applied to the deflated matrix $X-udv^\top$, where $udv^\top$ is the rank-one component obtained by applying \texttt{SPC} to the original data matrix $X$.
+\end{quote}
+
+\textcolor{teal}{Sensitivity analysis}
+
 \begin{shaded}  
 5. Simulation design and coverage.
 The simulations nicely demonstrate type-I error and power for a specific zero-inflated Gaussian block-correlation structure. Given the broad applicability of the method, I wonder if the authors could (or at least briefly discuss): i) additional covariance structures (e.g., more diffuse correlations or non-block patterns); ii)heavier-tailed distributions or different sparsity levels in the mean shift; iii) more extreme sample-size imbalance between groups. iv) Even a short summary in the Supplement (with pointers in the main text) would reassure readers about robustness.
@@ -227,7 +239,7 @@ Page 5, Sparse PCA step.
 The manuscript states that the projection direction is obtained via sparse PCA. However, the exact optimization problem used for sparse PCA is not specified. Providing the explicit objective function and describing how tuning parameters are selected would improve clarity and reproducibility.
 \end{shaded}
 
-We implemented the well-established $\ell_1$-penalized sparse PCA framework introduced by \cite{witten2009penalized}. More details are provided in the appendix. 
+We implemented the $\ell_1$-penalized sparse PCA framework introduced by \cite{witten2009penalized}. We added the following details in the appendix of the paper. 
 
 \begin{quote}
 The authors of \cite{witten2009penalized} applied an iterative algorithm to solve a penalized matrix decomposition of the data matrix, which can be viewed as a low-rank singular value decomposition with an $\ell_1$ constraint on the singular vectors. The explicit objective function is given in Equation~(2.7) of \cite{witten2009penalized}. The tuning parameter in this optimization problem is selected by cross-validation. The details of this procedure are described in the manual for the \texttt{SPC.cv} function in the \texttt{R} package \texttt{PMA} \cite{PMA}. We include a short summary here for readers' convenience.

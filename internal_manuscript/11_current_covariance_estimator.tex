@@ -1,0 +1,199 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+
+\newtheorem{lemma}{Lemma}
+
+\title{The Covariance Estimator Used in the Current Implementation}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Construction}
+
+Fix a fold $m\in[M]$. All nuisance quantities below are estimated using only
+$\mathcal D^{(-m)}$. The group-specific mean estimators are denoted by
+$\mu_X^{(-m)}$ and $\mu_Z^{(-m)}$. In the current implementation, these are
+either the sample means or coordinatewise hard-thresholded sample means.
+The observations in the two groups are centered separately using these
+estimators and then pooled.
+
+Let $K$ be the number of estimated principal components. The vectors
+$v_1^{(-m)},\ldots,v_K^{(-m)}$ are obtained from the pooled training sample.
+For sparse PCA, the current implementation uses \texttt{PMA::SPC}; for the
+hard-thresholded alternative, it first calculates the ordinary principal
+components and then thresholds their coordinates. Each resulting vector is
+normalized to have Euclidean norm one.
+
+For $k\in[K]$, the corresponding eigenvalue is estimated by the empirical
+variance in the direction $v_k^{(-m)}$:
+\begin{align}
+\lambda_k^{(-m)}
+={}&\frac{1}{|\mathcal D^{(-m)}|}
+\left[
+\sum_{X_i\in\mathcal D^{(-m)}}
+  \left\{(X_i-\mu_X^{(-m)})^\top v_k^{(-m)}\right\}^2
+\right.\nonumber\\
+&\left.\hspace{35mm}+
+\sum_{Z_i\in\mathcal D^{(-m)}}
+  \left\{(Z_i-\mu_Z^{(-m)})^\top v_k^{(-m)}\right\}^2
+\right].
+\label{eq:estimated-eigenvalue}
+\end{align}
+The residual noise variance is estimated by distributing the unexplained
+empirical covariance trace equally over the remaining $p-K$ directions:
+\begin{align}
+\widehat\sigma^{2(-m)}
+=\frac{1}{p-K}\Bigg[
+&\frac{1}{|\mathcal D^{(-m)}|}
+\left\{
+\sum_{X_i\in\mathcal D^{(-m)}}
+\|X_i-\mu_X^{(-m)}\|^2
++
+\sum_{Z_i\in\mathcal D^{(-m)}}
+\|Z_i-\mu_Z^{(-m)}\|^2
+\right\}
+-\sum_{k=1}^K\lambda_k^{(-m)}
+\Bigg].
+\label{eq:estimated-noise}
+\end{align}
+
+Equations~\eqref{eq:estimated-eigenvalue} and
+\eqref{eq:estimated-noise} implicitly define the spiked covariance estimator
+used by the current implementation:
+\begin{equation}
+\Sigma^{(-m)}
+=
+\sum_{k=1}^K
+\left\{\lambda_k^{(-m)}-\widehat\sigma^{2(-m)}\right\}
+v_k^{(-m)}v_k^{(-m)\top}
++\widehat\sigma^{2(-m)}I_p.
+\label{eq:current-covariance-estimator}
+\end{equation}
+The code does not need to form the $p\times p$ matrix in
+\eqref{eq:current-covariance-estimator}. Instead, it uses this spectral form
+directly when calculating
+\begin{equation*}
+\left(\lambda_k^{(-m)}I_p-\Sigma^{(-m)}\right)^+.
+\end{equation*}
+
+\section{The leading-component case}
+
+When $K=1$, \eqref{eq:current-covariance-estimator} becomes
+\begin{equation}
+\Sigma^{(-m)}
+=
+\left\{\lambda_1^{(-m)}-\widehat\sigma^{2(-m)}\right\}
+v_1^{(-m)}v_1^{(-m)\top}
++\widehat\sigma^{2(-m)}I_p.
+\label{eq:rank-one-estimator}
+\end{equation}
+Because $\|v_1^{(-m)}\|=1$, this construction gives the exact identity
+\begin{equation}
+\Sigma^{(-m)}v_1^{(-m)}
+=\lambda_1^{(-m)}v_1^{(-m)}.
+\label{eq:estimated-eigenpair}
+\end{equation}
+Moreover, \eqref{eq:rank-one-estimator} is positive semidefinite whenever
+$\widehat\sigma^{2(-m)}\geq0$ and
+$\lambda_1^{(-m)}\geq\widehat\sigma^{2(-m)}$.
+Thus, in the leading-component case, the estimated eigenpair used in the
+influence-function calculation is an exact eigenpair of the implicitly
+constructed covariance estimator.
+
+\section{Reduction of the operator-norm requirement}
+
+The following lemma records sufficient conditions under which the estimator
+in \eqref{eq:current-covariance-estimator} satisfies the operator-norm
+condition used in the one-step theorem.
+
+\begin{lemma}[Operator-norm consistency of the spiked estimator]
+\label{lem:spiked-covariance-rate}
+Suppose $K$ is fixed and
+\begin{equation}
+\Sigma
+=
+\sum_{k=1}^K(\lambda_k-\sigma^2)v_kv_k^\top
++\sigma^2I_p+R^{[1]},
+\label{eq:population-spiked-decomposition}
+\end{equation}
+where $v_1,\ldots,v_K$ are orthonormal, the $\lambda_k$ and $\sigma^2$ are
+uniformly bounded, and $\|R^{[1]}\|=o(n^{-1/4})$. Suppose also that
+$v_1^{(-m)},\ldots,v_K^{(-m)}$ are orthonormal and, after sign alignment,
+\begin{equation*}
+\max_{k\in[K]}|\lambda_k^{(-m)}-\lambda_k|=o_P(n^{-1/4}),
+\qquad
+|\widehat\sigma^{2(-m)}-\sigma^2|=o_P(n^{-1/4}),
+\end{equation*}
+and
+\begin{equation*}
+\max_{k\in[K]}\|v_k^{(-m)}-v_k\|=o_P(n^{-1/4}).
+\end{equation*}
+Then the estimator in \eqref{eq:current-covariance-estimator} satisfies
+\begin{equation*}
+\|\Sigma^{(-m)}-\Sigma\|=o_P(n^{-1/4}).
+\end{equation*}
+\end{lemma}
+
+\begin{proof}
+Subtracting \eqref{eq:population-spiked-decomposition} from
+\eqref{eq:current-covariance-estimator} and applying the triangle inequality
+gives
+\begin{align*}
+\|\Sigma^{(-m)}-\Sigma\|
+\leq{}&
+\sum_{k=1}^K
+\left|\lambda_k^{(-m)}-\widehat\sigma^{2(-m)}\right|
+\left\|v_k^{(-m)}v_k^{(-m)\top}-v_kv_k^\top\right\|\\
+&+
+\sum_{k=1}^K
+\left|
+\lambda_k^{(-m)}-\lambda_k
+-\widehat\sigma^{2(-m)}+\sigma^2
+\right|
++|\widehat\sigma^{2(-m)}-\sigma^2|
++\|R^{[1]}\|.
+\end{align*}
+For unit vectors with aligned signs,
+\begin{equation*}
+\left\|v_k^{(-m)}v_k^{(-m)\top}-v_kv_k^\top\right\|
+\leq 2\|v_k^{(-m)}-v_k\|.
+\end{equation*}
+The estimated eigenvalues and residual noise variance are bounded in
+probability under the stated assumptions. Since $K$ is fixed, substituting
+the assumed rates into the preceding bound proves the result.
+\end{proof}
+
+Lemma~\ref{lem:spiked-covariance-rate} separates the required covariance rate
+into four tasks: controlling the spiked-model residual $R^{[1]}$, estimating
+the leading eigenvalues, estimating the leading eigenvectors, and estimating
+the residual noise variance. The implementation computes the corresponding
+estimators, but their rates require assumptions on the covariance structure,
+the sparsity of the leading eigenvectors, the eigengaps, and the growth of
+$p$ relative to the training sample size.
+
+\section{Multiple estimated components}
+
+For $K>1$, the interpretation of
+\eqref{eq:current-covariance-estimator} as a spectral decomposition requires
+the estimated vectors to be orthonormal. Under this condition,
+\begin{equation*}
+\Sigma^{(-m)}v_k^{(-m)}
+=\lambda_k^{(-m)}v_k^{(-m)},
+\qquad k\in[K].
+\end{equation*}
+The current call to \texttt{PMA::SPC} uses its default
+\texttt{orth = FALSE}. Consequently, when several sparse components are
+estimated, their loading vectors need not be exactly orthogonal. In that
+case, \eqref{eq:current-covariance-estimator} remains a well-defined symmetric
+matrix, but the displayed eigenpair identity need not hold. This issue does
+not arise for $K=1$. For $K>1$, the theoretical spectral calculation therefore
+requires either an estimator that returns orthonormal loading vectors or a
+separate analysis of the non-orthogonal factor representation.
+
+\end{document}
