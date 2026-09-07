@@ -8,19 +8,19 @@ mean_comparison_source_file <- file.path(
 population_covariance_input_file <- file.path(
   data_directory,
   "raw",
-  "random_sparse_covariance_p100.rds"
+  "001_random_sparse_covariance_p100.rds"
 )
 
 mean_comparison_simulation_output_file <- file.path(
   data_directory,
   "intermediate",
-  "mean_comparison_simulation_p100.rds"
+  "003_mean_comparison_simulation_p100.rds"
 )
 
 mean_comparison_simulation_checkpoint_file <- file.path(
   data_directory,
   "intermediate",
-  "mean_comparison_simulation_checkpoint_p100.rds"
+  "003_mean_comparison_simulation_checkpoint_p100.rds"
 )
 
 

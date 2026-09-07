@@ -9,12 +9,12 @@ sparse_covariance_output_files <- c(
   feature_100 = file.path(
     data_directory,
     "raw",
-    "random_sparse_covariance_p100.rds"
+    "001_random_sparse_covariance_p100.rds"
   ),
   feature_1000 = file.path(
     data_directory,
     "raw",
-    "random_sparse_covariance_p1000.rds"
+    "001_random_sparse_covariance_p1000.rds"
   )
 )
 

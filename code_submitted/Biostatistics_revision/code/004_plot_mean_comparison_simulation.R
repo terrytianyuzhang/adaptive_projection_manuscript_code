@@ -3,25 +3,25 @@
 mean_comparison_simulation_input_file <- file.path(
   data_directory,
   "intermediate",
-  "mean_comparison_simulation_p100.rds"
+  "003_mean_comparison_simulation_p100.rds"
 )
 
 mean_comparison_summary_output_file <- file.path(
   data_directory,
   "final",
-  "mean_comparison_rejection_rate_summary_p100.rds"
+  "004_mean_comparison_rejection_rate_summary_p100.rds"
 )
 
 type_1_error_plot_output_file <- file.path(
   data_directory,
   "final",
-  "mean_comparison_type_1_error_p100.pdf"
+  "004_mean_comparison_type_1_error_p100.pdf"
 )
 
 power_plot_output_file <- file.path(
   data_directory,
   "final",
-  "mean_comparison_power_p100.pdf"
+  "004_mean_comparison_power_p100.pdf"
 )
 
 

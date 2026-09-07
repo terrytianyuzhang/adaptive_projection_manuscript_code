@@ -9,19 +9,19 @@ population_covariance_input_files <- c(
   feature_100 = file.path(
     data_directory,
     "raw",
-    "random_sparse_covariance_p100.rds"
+    "001_random_sparse_covariance_p100.rds"
   ),
   feature_1000 = file.path(
     data_directory,
     "raw",
-    "random_sparse_covariance_p1000.rds"
+    "001_random_sparse_covariance_p1000.rds"
   )
 )
 
 operator_norm_diagnostic_output_file <- file.path(
   data_directory,
   "intermediate",
-  "threshold_covariance_operator_norm_diagnostics.rds"
+  "002_threshold_covariance_operator_norm_diagnostics.rds"
 )
 
 
