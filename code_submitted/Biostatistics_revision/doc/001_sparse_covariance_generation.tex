@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+
+\title{Random Sparse Covariance Generation}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+Let $p$ be the number of features and let $d$ be the target average number of
+nonzero off-diagonal entries per row. We sample
+\[
+M=\operatorname{round}(pd/2)
+\]
+distinct unordered feature pairs uniformly at random. For each selected pair,
+we independently sample a positive weight from $\operatorname{Uniform}(0.5,1.5)$.
+Placing these weights symmetrically produces a sparse symmetric matrix $A$ with
+zero diagonal. Thus, the average number of nonzero off-diagonal entries per row
+is approximately $d$, without imposing a block structure.
+
+For a fixed $0<\rho<1$, define
+\[
+\Sigma=I_p+\rho\frac{A}{\lVert A\rVert_{\mathrm{op}}}.
+\]
+Because every eigenvalue of $A/\lVert A\rVert_{\mathrm{op}}$ lies in
+$[-1,1]$,
+\[
+\lambda_{\min}(\Sigma)\geq 1-\rho>0.
+\]
+Therefore, every generated matrix is a valid covariance matrix. We accept a
+draw only when
+\[
+\lambda_1(\Sigma)-\lambda_2(\Sigma)\geq \Delta,
+\]
+where $\Delta>0$ is specified before the search. If no draw satisfies this
+condition within the maximum number of attempts, the procedure stops with an
+error.
+
+All generation, validation, and search functions are contained in
+\texttt{src/001\_find\_gap\_covariance.R}. Its main interface takes $p$, $d$,
+$\rho$, $\Delta$, the maximum number of attempts, and a random seed. It returns
+the accepted covariance matrix, its leading eigenpairs, the generation
+settings, and sparsity and eigenvalue diagnostics. The script
+\texttt{code/001\_find\_sparse\_covariance\_matrix.R} declares its input and
+output filenames at the beginning, calls this interface for $p=100$ and
+$p=1000$, and saves the results as
+\texttt{data/raw/random\_sparse\_covariance\_p100.rds} and
+\texttt{data/raw/random\_sparse\_covariance\_p1000.rds}. The computational
+module does not perform file input or output. We use $d=8$ and $\rho=0.9$ for
+both $p=100$ and $p=1000$. Relative to a denser graph with the same bounded
+spectral perturbation, this choice produces fewer but stronger nonzero
+covariances and is therefore more suitable for evaluating sparse covariance
+estimation.
+
+\end{document}

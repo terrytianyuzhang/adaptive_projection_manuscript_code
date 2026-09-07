@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+
+\title{Thresholded Sparse Covariance Estimation}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+Within each training fold, the two groups are centered separately using their
+sample means. The centered observations are then pooled. If the pooled training
+sample size is $n$, their cross-product matrix is divided by $n-2$, accounting
+for the two estimated group means. The resulting pooled sample covariance is
+denoted by $\widetilde\Sigma$.
+
+We retain its diagonal entries. For $j\neq j'$, define
+\[
+\widehat\Sigma_{jj'}
+=
+\widetilde\Sigma_{jj'}
+\mathbf 1
+\left\{
+|\widetilde\Sigma_{jj'}|
+\geq
+c\left[
+\left(
+\widetilde\Sigma_{jj}\widetilde\Sigma_{j'j'}
++\widetilde\Sigma_{jj'}^2
+\right)
+\frac{\log p}{n-2}
+\right]^{1/2}
+\right\}.
+\]
+The factor inside the threshold accounts for entry-specific scale under the
+Gaussian simulation model. The diagnostic comparison uses
+$c\in\{1,1.25,1.5\}$; we use $c=1.25$ as the default.
+
+If the thresholded matrix has smallest eigenvalue below a fixed positive
+numerical tolerance, we add the minimum diagonal shift required to reach that
+tolerance. This operation preserves the eigenvectors and all eigenvalue gaps.
+
+The implementation is contained in
+\texttt{src/002\_threshold\_sparse\_covariance.R}. The validation script
+\texttt{code/002\_validate\_sparse\_covariance\_estimator.R} reads the two
+population covariance matrices and saves repetition-level operator-norm and
+leading-eigenvector diagnostics in
+\texttt{data/intermediate/threshold\_covariance\_operator\_norm\_diagnostics.rds}.
+
+\end{document}
