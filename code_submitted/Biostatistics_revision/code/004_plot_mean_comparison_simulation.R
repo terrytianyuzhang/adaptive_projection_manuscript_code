@@ -12,16 +12,10 @@ mean_comparison_summary_output_file <- file.path(
   "004_mean_comparison_rejection_rate_summary_p100.rds"
 )
 
-type_1_error_plot_output_file <- file.path(
+type_1_error_and_power_plot_output_file <- file.path(
   data_directory,
   "final",
-  "004_mean_comparison_type_1_error_p100.pdf"
-)
-
-power_plot_output_file <- file.path(
-  data_directory,
-  "final",
-  "004_mean_comparison_power_p100.pdf"
+  "004_mean_comparison_type_1_error_and_power_p100.pdf"
 )
 
 
@@ -88,99 +82,76 @@ saveRDS(
 
 # Plot -----------------------------------------------------------------------
 
-create_rejection_rate_plot <- function(
-    plot_data,
-    vertical_axis_label,
-    vertical_axis_maximum,
-    vertical_axis_breaks,
-    include_significance_reference = FALSE) {
-  rejection_rate_plot <- ggplot2::ggplot(
-    plot_data,
+projected_null_plot_data <- rejection_rate_summary[
+  rejection_rate_summary$test_family == "Projected null",
+  ,
+  drop = FALSE
+]
+projected_null_plot_data$simulation_target <- factor(
+  projected_null_plot_data$simulation_target,
+  levels = c("Type I error", "Power")
+)
+
+significance_reference_data <- data.frame(
+  simulation_target = factor(
+    "Type I error",
+    levels = c("Type I error", "Power")
+  ),
+  significance_level = mean_comparison_simulation_output$settings$
+    significance_level
+)
+
+type_1_error_and_power_plot <- ggplot2::ggplot(
+  projected_null_plot_data,
+  ggplot2::aes(
+    x = sample_size_per_group,
+    y = rejection_rate,
+    color = method,
+    group = method
+  )
+) +
+  ggplot2::geom_errorbar(
     ggplot2::aes(
-      x = sample_size_per_group,
-      y = rejection_rate,
-      color = method,
-      group = method
-    )
+      ymin = lower_plot_limit,
+      ymax = upper_plot_limit
+    ),
+    width = 20,
+    linewidth = 0.45
   ) +
-    ggplot2::geom_errorbar(
-      ggplot2::aes(
-        ymin = lower_plot_limit,
-        ymax = upper_plot_limit
-      ),
-      width = 20,
-      linewidth = 0.45
-    ) +
-    ggplot2::geom_line(linewidth = 0.7) +
-    ggplot2::geom_point(size = 2) +
-    ggplot2::facet_wrap(~test_family) +
-    ggplot2::scale_x_continuous(
-      breaks = sort(unique(plot_data$sample_size_per_group))
-    ) +
-    ggplot2::scale_y_continuous(
-      limits = c(0, vertical_axis_maximum),
-      breaks = vertical_axis_breaks
-    ) +
-    ggplot2::labs(
-      x = "Sample size per group",
-      y = vertical_axis_label,
-      color = NULL
-    ) +
-    ggplot2::theme_bw(base_size = 11) +
-    ggplot2::theme(
-      legend.position = "bottom",
-      panel.grid.minor = ggplot2::element_blank(),
-      axis.title.x = ggplot2::element_text(
-        hjust = 0.5,
-        margin = ggplot2::margin(t = 8)
-      )
+  ggplot2::geom_line(linewidth = 0.7) +
+  ggplot2::geom_point(size = 2) +
+  ggplot2::geom_hline(
+    data = significance_reference_data,
+    ggplot2::aes(yintercept = significance_level),
+    linetype = "dashed",
+    color = "grey35"
+  ) +
+  ggplot2::facet_wrap(
+    ~simulation_target,
+    scales = "free_y"
+  ) +
+  ggplot2::scale_x_continuous(
+    breaks = sort(unique(projected_null_plot_data$sample_size_per_group))
+  ) +
+  ggplot2::scale_y_continuous(limits = c(0, NA)) +
+  ggplot2::labs(
+    x = "Sample size per group",
+    y = "Rejection rate",
+    color = NULL
+  ) +
+  ggplot2::theme_bw(base_size = 11) +
+  ggplot2::theme(
+    legend.position = "bottom",
+    panel.grid.minor = ggplot2::element_blank(),
+    axis.title.x = ggplot2::element_text(
+      hjust = 0.5,
+      margin = ggplot2::margin(t = 8)
     )
-
-  if (include_significance_reference) {
-    rejection_rate_plot <- rejection_rate_plot +
-      ggplot2::geom_hline(
-        yintercept = mean_comparison_simulation_output$settings$
-          significance_level,
-        linetype = "dashed",
-        color = "grey35"
-      )
-  }
-
-  rejection_rate_plot
-}
-
-type_1_error_plot <- create_rejection_rate_plot(
-  plot_data = rejection_rate_summary[
-    rejection_rate_summary$simulation_target == "Type I error",
-    ,
-    drop = FALSE
-  ],
-  vertical_axis_label = "Type I error",
-  vertical_axis_maximum = 0.20,
-  vertical_axis_breaks = seq(0, 0.20, by = 0.05),
-  include_significance_reference = TRUE
-)
-power_plot <- create_rejection_rate_plot(
-  plot_data = rejection_rate_summary[
-    rejection_rate_summary$simulation_target == "Power",
-    ,
-    drop = FALSE
-  ],
-  vertical_axis_label = "Power",
-  vertical_axis_maximum = 1,
-  vertical_axis_breaks = seq(0, 1, by = 0.2)
-)
+  )
 
 ggplot2::ggsave(
-  filename = type_1_error_plot_output_file,
-  plot = type_1_error_plot,
-  device = grDevices::pdf,
-  width = 7.5,
-  height = 4.2
-)
-ggplot2::ggsave(
-  filename = power_plot_output_file,
-  plot = power_plot,
+  filename = type_1_error_and_power_plot_output_file,
+  plot = type_1_error_and_power_plot,
   device = grDevices::pdf,
   width = 7.5,
   height = 4.2

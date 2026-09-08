@@ -1,0 +1,445 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+
+\title{Parallel Mean-Comparison Simulation Settings}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Objective}
+
+The simulation evaluates inference for the projected null
+\begin{equation}
+H_0^{\rm proj}(v_1):
+\left(\mu_X-\mu_Z\right)^\top v_1=0,
+\label{eq:projected-null}
+\end{equation}
+where $v_1$ is the leading eigenvector of the common population covariance
+matrix $\Sigma=\Sigma_X=\Sigma_Z$. We compare the debiased PC, oracle PC, and
+plug-in PC procedures. No global-null experiment and no anchored projection
+procedure are included in this simulation.
+
+We use
+\[
+p\in\{100,1000\},
+\qquad
+N_X=N_Z\in\{50,200,400,600,800\}.
+\]
+For every combination of $p$ and the per-group sample size, we generate 1000
+independent Monte Carlo repetitions. All tests are two-sided and use
+significance level $0.05$.
+
+
+\section{Population covariance matrices}
+
+For each $p$, we first generate a sparse symmetric matrix $A$ with zero
+diagonal. We sample
+\[
+\operatorname{round}(8p/2)=4p
+\]
+distinct unordered pairs of coordinates uniformly at random. For every
+selected pair, its two symmetric entries in $A$ are assigned the same
+independent $\operatorname{Uniform}(0.5,1.5)$ weight. Thus, each row has eight
+nonzero off-diagonal entries on average, but the locations of these entries do
+not follow a block or Toeplitz pattern.
+
+The population covariance matrix is
+\begin{equation}
+\Sigma=I_p+0.9\frac{A}{\lVert A\rVert_{\rm op}}.
+\label{eq:population-covariance}
+\end{equation}
+Since every eigenvalue of $A/\lVert A\rVert_{\rm op}$ is in $[-1,1]$,
+\[
+\lambda_{\min}(\Sigma)\geq 0.1.
+\]
+We retain the first generated matrix satisfying
+\begin{equation}
+\lambda_1(\Sigma)-\lambda_2(\Sigma)\geq 0.2.
+\label{eq:population-gap-requirement}
+\end{equation}
+The search uses random seed $20260825$ and allows at most 500 attempts. The
+accepted matrices used throughout the simulation have the following
+diagnostics.
+
+\begin{center}
+\begin{tabular}{rrrrrr}
+\toprule
+$p$ & Nonzero pairs & $\lambda_1(\Sigma)$
+& $\lambda_2(\Sigma)$ & $\lambda_1(\Sigma)-\lambda_2(\Sigma)$
+& $\lambda_{\min}(\Sigma)$ \\
+\midrule
+100  & 400  & 1.900 & 1.553 & 0.347 & 0.445 \\
+1000 & 4000 & 1.900 & 1.600 & 0.300 & 0.389 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The two accepted covariance matrices are fixed across all sample sizes and
+Monte Carlo repetitions. Therefore, changes across sample sizes reflect
+estimation accuracy rather than changes in the underlying covariance matrix.
+
+
+\section{Population mean differences}
+
+For either mean configuration described below, observations are generated as
+\[
+X_i\overset{\rm IID}{\sim}
+\mathcal N_p\left(\frac{\mu_X-\mu_Z}{2},\Sigma\right),
+\qquad
+Z_i\overset{\rm IID}{\sim}
+\mathcal N_p\left(-\frac{\mu_X-\mu_Z}{2},\Sigma\right).
+\]
+This symmetric parameterization makes the population mean difference exactly
+$\mu_X-\mu_Z$.
+
+Let $a_1,\ldots,a_{10}$ be the indices of the ten largest entries of $v_1$
+in absolute value, ordered from largest to smallest, and define the
+normalization constant
+\[
+D=\left(\sum_{\ell=1}^{10}v_{1,a_\ell}^2\right)^{1/2}.
+\]
+Under the projected null, the mean difference has exactly these ten active
+coordinates. For $k=1,\ldots,5$, set
+\begin{align}
+\left(\mu_X-\mu_Z\right)_{a_{2k-1}}
+&=\frac{v_{1,a_{2k}}}{D},
+&
+\left(\mu_X-\mu_Z\right)_{a_{2k}}
+&=-\frac{v_{1,a_{2k-1}}}{D},
+\label{eq:projected-null-mean}
+\end{align}
+and set all remaining coordinates to zero. In words, we divide the ten
+selected coordinates into five consecutive pairs. Within every pair, we swap
+the two leading-PC loadings and change the sign of the second one.
+
+Each pair makes a zero contribution to the inner product with $v_1$:
+\begin{align*}
+\left(\mu_X-\mu_Z\right)^\top v_1
+&=
+\frac{1}{D}\sum_{k=1}^5
+\left(
+v_{1,a_{2k-1}}v_{1,a_{2k}}
+-v_{1,a_{2k}}v_{1,a_{2k-1}}
+\right)
+=0.
+\end{align*}
+Moreover,
+\begin{align*}
+\lVert\mu_X-\mu_Z\rVert_2^2
+&=
+\frac{1}{D^2}\sum_{k=1}^5
+\left(v_{1,a_{2k}}^2+v_{1,a_{2k-1}}^2\right)
+=1.
+\end{align*}
+Thus, the projected-null signal has unit Euclidean norm, is supported on ten
+genes, and is exactly orthogonal to $v_1$.
+
+For $p=100$, the actual nonzero entries, rounded to three decimals, are
+\begin{align*}
+\big(&\left(\mu_X-\mu_Z\right)_{78},
+\left(\mu_X-\mu_Z\right)_{51},
+\left(\mu_X-\mu_Z\right)_{62},
+\left(\mu_X-\mu_Z\right)_{86},
+\left(\mu_X-\mu_Z\right)_{33},\\
+&\left(\mu_X-\mu_Z\right)_{7},
+\left(\mu_X-\mu_Z\right)_{87},
+\left(\mu_X-\mu_Z\right)_{84},
+\left(\mu_X-\mu_Z\right)_{99},
+\left(\mu_X-\mu_Z\right)_{10}\big)\\
+&=(0.316,-0.442,0.315,-0.315,0.298,-0.305,
+0.289,-0.294,0.272,-0.285).
+\end{align*}
+For $p=1000$, the corresponding entries are
+\begin{align*}
+\big(&\left(\mu_X-\mu_Z\right)_{992},
+\left(\mu_X-\mu_Z\right)_{338},
+\left(\mu_X-\mu_Z\right)_{446},
+\left(\mu_X-\mu_Z\right)_{527},
+\left(\mu_X-\mu_Z\right)_{35},\\
+&\left(\mu_X-\mu_Z\right)_{721},
+\left(\mu_X-\mu_Z\right)_{10},
+\left(\mu_X-\mu_Z\right)_{20},
+\left(\mu_X-\mu_Z\right)_{800},
+\left(\mu_X-\mu_Z\right)_{163}\big)\\
+&=(0.368,-0.379,0.320,-0.355,0.292,-0.298,
+0.281,-0.291,0.277,-0.279).
+\end{align*}
+Thus, the two population means are different even though
+\eqref{eq:projected-null} holds. Rejection probabilities under
+\eqref{eq:projected-null-mean} estimate the Type I error of the projected
+tests.
+
+For the power experiment, let $S=\{a_1,\ldots,a_{10}\}$, and let $v_{1,S}$
+agree with $v_1$ on $S$ and equal zero outside $S$. Starting from the mean difference in
+\eqref{eq:projected-null-mean}, we add
+\begin{equation}
+0.25\frac{v_{1,S}}{v_1^\top v_{1,S}}.
+\label{eq:projected-alternative-addition}
+\end{equation}
+Consequently, the mean difference under the alternative satisfies
+\begin{equation}
+\left(\mu_X-\mu_Z\right)^\top v_1=0.25.
+\label{eq:projected-alternative}
+\end{equation}
+The addition in \eqref{eq:projected-alternative-addition} is supported on the
+same ten coordinates as the projected-null mean difference. The complete mean
+difference under the alternative is therefore also supported on ten genes.
+
+
+\section{Training-fold nuisance estimators}
+
+The plug-in and debiased procedures use five-fold cross-fitting. Each group is
+randomly partitioned into five equal folds. For each fold $m\in[5]$, nuisance
+quantities are estimated using only
+$\mathcal D^{(-m)}$, and the resulting quantities are evaluated using the held
+out observations in $\mathcal D^{(m)}$. The signs of both the population and
+estimated leading eigenvectors are fixed by requiring their largest entry in
+absolute value to be positive.
+
+\subsection{Thresholded covariance estimator}
+
+Within $\mathcal D^{(-m)}$, the observations from the two groups are centered
+separately using their training-fold sample means and then pooled. Their
+cross-product matrix divided by $|\mathcal D^{(-m)}|-2$ is denoted by
+$\widetilde\Sigma^{(-m)}$. The subtraction of two accounts for the two
+estimated group means.
+
+The diagonal entries are retained. For $j\neq j'$, the covariance estimator is
+\begin{align}
+\Sigma_{jj'}^{(-m)}
+={}&\widetilde\Sigma_{jj'}^{(-m)}
+\mathbf 1\Bigg\{
+\left|\widetilde\Sigma_{jj'}^{(-m)}\right|
+\geq 1.25
+\left[
+\left\{
+\widetilde\Sigma_{jj}^{(-m)}
+\widetilde\Sigma_{j'j'}^{(-m)}
++\left(\widetilde\Sigma_{jj'}^{(-m)}\right)^2
+\right\}
+\frac{\log p}{|\mathcal D^{(-m)}|-2}
+\right]^{1/2}
+\Bigg\}.
+\label{eq:thresholded-covariance}
+\end{align}
+If the smallest eigenvalue of the matrix in
+\eqref{eq:thresholded-covariance} is less than $10^{-6}$, the minimum multiple
+of $I_p$ needed to make its smallest eigenvalue equal to $10^{-6}$ is added.
+This diagonal shift changes neither the eigenvectors nor the eigenvalue gaps.
+The leading eigenvalue and eigenvector of the resulting matrix are denoted by
+$\lambda_1^{(-m)}$ and $v_1^{(-m)}$.
+
+This estimator is an entrywise-thresholded covariance estimator. In
+particular, the revision simulation does not use \texttt{PMA::SPC} or the
+spiked covariance estimator used elsewhere in the manuscript code.
+
+\subsection{Mean-difference estimator used in the correction}
+
+The training-fold sample means are denoted by $\mu_X^{(-m)}$ and
+$\mu_Z^{(-m)}$. Before constructing the one-step correction, their difference
+is hard-thresholded coordinatewise. For coordinate $j$, it is retained only
+when
+\begin{equation}
+\left|\mu_{X,j}^{(-m)}-\mu_{Z,j}^{(-m)}\right|
+\geq
+1.25\sqrt{2\log p}
+\left(
+\frac{\widehat{\operatorname{Var}}^{(-m)}(X_j)}
+{4N_X/5}
++
+\frac{\widehat{\operatorname{Var}}^{(-m)}(Z_j)}
+{4N_Z/5}
+\right)^{1/2}.
+\label{eq:thresholded-mean-difference}
+\end{equation}
+Here $\widehat{\operatorname{Var}}^{(-m)}(X_j)$ and
+$\widehat{\operatorname{Var}}^{(-m)}(Z_j)$ are the ordinary sample variances
+calculated from the two training-fold samples.
+The hard-thresholded difference in
+\eqref{eq:thresholded-mean-difference}, rather than the unthresholded
+difference, is used in
+\begin{equation}
+s^{(-m)}
+=
+\left(\lambda_1^{(-m)}I_p-\Sigma^{(-m)}\right)^+
+\left(\mu_X^{(-m)}-\mu_Z^{(-m)}\right).
+\label{eq:estimated-s}
+\end{equation}
+The unthresholded training-fold sample means are still used to center the
+observations appearing in the influence functions.
+
+
+\section{Compared methods}
+
+\subsection{Oracle PC}
+
+The oracle procedure treats the population $v_1$ as known. It estimates
+\[
+\theta=\left(\mu_X-\mu_Z\right)^\top v_1
+\]
+by
+\[
+\widehat\theta_{\rm or}
+=
+\left(\overline X-\overline Z\right)^\top v_1.
+\]
+Its squared standard error is the sum of the sample variance of $X_i^\top v_1$
+divided by $N_X$ and the sample variance of $Z_i^\top v_1$ divided by $N_Z$.
+More explicitly,
+\begin{align}
+\widehat\sigma_{\rm or}^2
+={}&
+\frac{1}{N_X(N_X-1)}
+\sum_{i=1}^{N_X}
+\left\{(X_i-\overline X)^\top v_1\right\}^2
+\nonumber\\
+&+
+\frac{1}{N_Z(N_Z-1)}
+\sum_{i=1}^{N_Z}
+\left\{(Z_i-\overline Z)^\top v_1\right\}^2.
+\label{eq:oracle-standard-error}
+\end{align}
+Thus, $\widehat\sigma_{\rm or}$ is the estimated standard deviation of
+$\widehat\theta_{\rm or}$, not an additional model parameter. Since $v_1$ is
+an eigenvector of $\Sigma$, the population variance being estimated is
+\[
+\operatorname{Var}(\widehat\theta_{\rm or})
+=
+\lambda_1(\Sigma)\left(\frac{1}{N_X}+\frac{1}{N_Z}\right).
+\]
+The oracle statistic is
+$T_{\rm or}=\widehat\theta_{\rm or}/\widehat\sigma_{\rm or}$.
+
+\subsection{Plug-in PC}
+
+For each held-out fold, the plug-in estimate is
+\begin{equation}
+\widehat\theta_{\rm pi}^{(m)}
+=
+\left(\mu_X^{(m)}-\mu_Z^{(m)}\right)^\top v_1^{(-m)}.
+\label{eq:plugin-fold-estimate}
+\end{equation}
+The five fold estimates are averaged. If
+$\widehat\sigma_{\rm pi}^{2(m)}$ is the sum of the two held-out sample
+variances of the projected observations divided by their respective fold
+sample sizes, the implementation uses
+\begin{equation}
+\widehat\theta_{\rm pi}
+=\frac{1}{5}\sum_{m=1}^5\widehat\theta_{\rm pi}^{(m)},
+\qquad
+\widehat\sigma_{\rm pi}^2
+=\frac{1}{5^2}\sum_{m=1}^5
+\widehat\sigma_{\rm pi}^{2(m)},
+\qquad
+T_{\rm pi}=\frac{\widehat\theta_{\rm pi}}
+{\widehat\sigma_{\rm pi}}.
+\label{eq:plugin-statistic}
+\end{equation}
+
+\subsection{Debiased PC}
+
+Using \eqref{eq:estimated-s}, the estimated influence functions in fold $m$
+are
+\begin{align}
+\phi_X^{(-m)}(X)
+={}&s^{(-m)\top}
+\left[
+\left(X-\mu_X^{(-m)}\right)
+\left(X-\mu_X^{(-m)}\right)^\top
+-\Sigma^{(-m)}
+\right]v_1^{(-m)},
+\label{eq:x-influence-function}\\
+\phi_Z^{(-m)}(Z)
+={}&s^{(-m)\top}
+\left[
+\left(Z-\mu_Z^{(-m)}\right)
+\left(Z-\mu_Z^{(-m)}\right)^\top
+-\Sigma^{(-m)}
+\right]v_1^{(-m)}.
+\label{eq:z-influence-function}
+\end{align}
+Because the held-out group sizes are equal, the fold-specific one-step
+estimate implemented in the simulation is
+\begin{align}
+\widehat\theta_{\rm 1s}^{(m)}
+={}&\widehat\theta_{\rm pi}^{(m)}
++\frac{1}{|\mathcal D^{(m)}|}
+\left\{
+\sum_{X_i\in\mathcal D^{(m)}}\phi_X^{(-m)}(X_i)
++\sum_{Z_i\in\mathcal D^{(m)}}\phi_Z^{(-m)}(Z_i)
+\right\}.
+\label{eq:debiased-fold-estimate}
+\end{align}
+For variance estimation, the corresponding held-out scores are
+\begin{align*}
+V_X^{(-m)}(X)
+&=X^\top v_1^{(-m)}+\frac{1}{2}\phi_X^{(-m)}(X),\\
+V_Z^{(-m)}(Z)
+&=Z^\top v_1^{(-m)}-\frac{1}{2}\phi_Z^{(-m)}(Z).
+\end{align*}
+The fold variance is the sum of the two sample variances of these scores
+divided by their respective held-out sample sizes. The fold estimates and
+variances are then combined exactly as in \eqref{eq:plugin-statistic}, giving
+$\widehat\theta_{\rm 1s}$, $\widehat\sigma_{\rm 1s}$, and
+\[
+T_{\rm 1s}=\frac{\widehat\theta_{\rm 1s}}
+{\widehat\sigma_{\rm 1s}}.
+\]
+
+For all three methods, the two-sided $p$-value is
+\[
+2\Phi\left(-|T|\right),
+\]
+where $\Phi$ is the standard normal distribution function. Rejection occurs
+when this value is at most $0.05$.
+
+
+\section{Monte Carlo summaries and parallel execution}
+
+For each combination of $p$, per-group sample size, method, and simulation
+target, the reported rejection rate is the average of the 1000 rejection
+indicators. If the rejection rate is $\widehat q$, its reported Monte Carlo
+standard error is
+\[
+\left\{\frac{\widehat q(1-\widehat q)}{1000}\right\}^{1/2}.
+\]
+Under \eqref{eq:projected-null-mean}, this rejection rate estimates Type I
+error. Under \eqref{eq:projected-alternative}, it estimates power.
+
+For computation, ten consecutive repetitions for one method and one
+$(p,N_X)$ combination form a single parallel task. The task manifest has four
+columns: a unique ID, the method, the setting, and the batch number. A separate
+setting table maps each setting to $p$ and $N_X$. Hence, the complete experiment
+contains
+\[
+3\times2\times5\times100=3000
+\]
+parallel tasks. A task has a self-describing identifier such as
+\texttt{debiased\_pc\_p1000\_n0200\_b037}. Each task writes to its own file,
+so completed tasks can be validated and skipped when the pipeline is resumed.
+The random seed for repetition $r$ is
+\[
+20260829+p\times10^6+N_X\times10^3+r.
+\]
+The fold assignments use this seed plus one under the projected null and this
+seed plus two under the projected alternative. The parallel execution order
+therefore does not affect the simulated data or the cross-fitting splits.
+
+The settings are declared in
+\texttt{config/011\_mean\_comparison\_simulation\_config.R}. Population
+quantities and the task manifest are prepared by
+\texttt{code/011\_prepare\_mean\_comparison\_tasks.R}; a single task is run by
+\texttt{code/012\_run\_mean\_comparison\_task.R}; and the computational
+interface is contained in
+\texttt{src/012\_mean\_comparison\_simulation\_task.R}. The parallel
+dispatcher, result collector, complete runner, and plotting script are
+numbered 013 through 016, respectively.
+
+\end{document}
