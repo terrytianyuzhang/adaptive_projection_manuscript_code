@@ -1,38 +1,22 @@
-# Run as: Rscript 012_run_mean_comparison_task.R simulation_task_id
+# Run as: Rscript 012_run_mean_comparison_task.R task_id
 
-# File input and output -------------------------------------------------------
+# File input and output ------------------------------------------------------
 
+simulation_task_table_input_file <- file.path(
+  "..",
+  "data",
+  "intermediate",
+  "011_mean_comparison_task_table.csv"
+)
+simulation_config_source_file <- file.path(
+  "..",
+  "src",
+  "011_mean_comparison_simulation_config.R"
+)
 mean_comparison_source_file <- file.path(
   "..",
   "src",
   "002_threshold_sparse_covariance.R"
-)
-simulation_task_source_file <- file.path(
-  "..",
-  "src",
-  "012_mean_comparison_simulation_task.R"
-)
-simulation_task_manifest_file <- file.path(
-  "..",
-  "data",
-  "intermediate",
-  "011_mean_comparison_task_manifest.csv"
-)
-simulation_setting_table_file <- file.path(
-  "..",
-  "data",
-  "intermediate",
-  "011_mean_comparison_setting_table.csv"
-)
-shared_simulation_input_files <- c(
-  feature_100 = file.path(
-    "..", "data", "intermediate",
-    "011_mean_comparison_shared_input_p100.rds"
-  ),
-  feature_1000 = file.path(
-    "..", "data", "intermediate",
-    "011_mean_comparison_shared_input_p1000.rds"
-  )
 )
 simulation_task_result_directory <- file.path(
   "..",
@@ -42,162 +26,155 @@ simulation_task_result_directory <- file.path(
 )
 
 
-# Source computational functions --------------------------------------------
+# Simulation constants ------------------------------------------------------
 
+repetition_number_per_batch <- 10L
+simulation_seed_offset <- 20260829L
+cross_fitting_fold_number <- 5L
+threshold_multiplier <- 1.25
+mean_difference_threshold_multiplier <- 1.25
+
+
+# Read task -----------------------------------------------------------------
+
+task_id <- as.integer(commandArgs(trailingOnly = TRUE)[1L])
+simulation_task_table <- read.csv(
+  simulation_task_table_input_file,
+  stringsAsFactors = FALSE
+)
+task_specification <- simulation_task_table[
+  simulation_task_table$id == task_id,
+  ,
+  drop = FALSE
+]
+
+method <- task_specification$method
+setting_id <- task_specification$setting_id
+batch_number <- task_specification$batch_number
+
+source(simulation_config_source_file)
 source(mean_comparison_source_file)
-source(simulation_task_source_file)
 
 
-# Identify one task ----------------------------------------------------------
+# Generate and analyze repetitions -----------------------------------------
 
-command_arguments <- commandArgs(trailingOnly = TRUE)
-if (length(command_arguments) != 1L) {
-  stop("Provide exactly one unique_id.")
-}
-unique_id <- command_arguments[1]
-
-simulation_task_manifest <- read.csv(
-  simulation_task_manifest_file,
-  stringsAsFactors = FALSE
+population_covariance_cholesky_factor <- chol(
+  simulation_config$covariance_matrix
 )
-task_match_indicator <- (
-  simulation_task_manifest$unique_id == unique_id
-)
-if (sum(task_match_indicator) != 1L) {
-  stop("unique_id was not found uniquely: ", unique_id)
-}
-task_specification <- simulation_task_manifest[
-  task_match_indicator,
-  ,
-  drop = FALSE
-]
-simulation_setting_table <- read.csv(
-  simulation_setting_table_file,
-  stringsAsFactors = FALSE
-)
-setting_match_indicator <- (
-  simulation_setting_table$setting == task_specification$setting
-)
-if (sum(setting_match_indicator) != 1L) {
-  stop("setting was not found uniquely: ", task_specification$setting)
-}
-setting_specification <- simulation_setting_table[
-  setting_match_indicator,
-  ,
-  drop = FALSE
-]
-
-feature_name <- paste0(
-  "feature_",
-  setting_specification$feature_number
-)
-shared_simulation_input <- readRDS(
-  shared_simulation_input_files[[feature_name]]
-)
-current_result_file <- create_mean_comparison_task_result_file(
-  simulation_task_result_directory,
-  task_specification,
-  shared_simulation_input$simulation_settings$simulation_method_ids
-)
-
-
-# Resume a completed task ----------------------------------------------------
-
-if (file.exists(current_result_file)) {
-  existing_task_output <- tryCatch(
-    readRDS(current_result_file),
-    error = function(read_error) NULL
-  )
-  existing_result_is_valid <- validate_mean_comparison_task_output(
-    task_output = existing_task_output,
-    expected_task_specification = task_specification,
-    expected_setting_specification = setting_specification,
-    expected_simulation_settings = (
-      shared_simulation_input$simulation_settings
-    )
-  )
-
-  if (existing_result_is_valid) {
-    message("Task ", unique_id, " is already complete.")
-    quit(save = "no")
-  }
-
-  stop(
-    "The existing result for ", unique_id,
-    " is incomplete or incompatible. Remove it before rerunning this task."
-  )
-}
-
-
-# Run one batch --------------------------------------------------------------
-
-message(
-  "Running ", unique_id,
-  ": ", task_specification$method,
-  ", p = ", setting_specification$feature_number,
-  ", n = ", setting_specification$sample_size_per_group,
-  ", batch ", task_specification$batch_number, "."
-)
-
-repeat_indices <- seq.int(
-  (task_specification$batch_number - 1L) *
-    shared_simulation_input$simulation_settings$
-      repeat_number_per_batch + 1L,
-  task_specification$batch_number *
-    shared_simulation_input$simulation_settings$
-      repeat_number_per_batch
-)
-batch_simulation_results <- vector(
+simulation_results <- vector(
   "list",
-  length(repeat_indices)
+  repetition_number_per_batch
 )
 
-for (repeat_number in seq_along(repeat_indices)) {
-  repeat_index <- repeat_indices[repeat_number]
+for (repetition_number in 1:repetition_number_per_batch) {
+  repeat_index <- (
+    (batch_number - 1L) * repetition_number_per_batch +
+      repetition_number
+  )
   simulation_seed <- (
-    shared_simulation_input$simulation_settings$
-      mean_comparison_simulation_seed +
-      setting_specification$feature_number * 1000000L +
-      setting_specification$sample_size_per_group * 1000L +
+    simulation_seed_offset +
+      setting_id * 10000L +
       repeat_index
   )
+  set.seed(simulation_seed)
 
-  batch_simulation_results[[repeat_number]] <- (
-    run_one_mean_comparison_simulation(
-      sample_size_per_group = setting_specification$sample_size_per_group,
-      repeat_index = repeat_index,
-      simulation_seed = simulation_seed,
-      shared_simulation_input = shared_simulation_input,
-      method = task_specification$method
+  treatment_sample <- (
+    matrix(
+      stats::rnorm(
+        simulation_config$treatment_sample_size *
+          simulation_config$dimension
+      ),
+      nrow = simulation_config$treatment_sample_size,
+      ncol = simulation_config$dimension
+    ) %*%
+      population_covariance_cholesky_factor
+  )
+  treatment_sample <- sweep(
+    treatment_sample,
+    MARGIN = 2,
+    STATS = simulation_config$treatment_mean,
+    FUN = "+"
+  )
+
+  control_sample <- (
+    matrix(
+      stats::rnorm(
+        simulation_config$control_sample_size *
+          simulation_config$dimension
+      ),
+      nrow = simulation_config$control_sample_size,
+      ncol = simulation_config$dimension
+    ) %*%
+      population_covariance_cholesky_factor
+  )
+  control_sample <- sweep(
+    control_sample,
+    MARGIN = 2,
+    STATS = simulation_config$control_mean,
+    FUN = "+"
+  )
+
+  if (method == "debiased_pc") {
+    cross_fitted_result <- cross_fitted_pc_mean_comparison(
+      group_1_sample = treatment_sample,
+      group_2_sample = control_sample,
+      fold_number = cross_fitting_fold_number,
+      threshold_multiplier = threshold_multiplier,
+      mean_difference_threshold_multiplier = (
+        mean_difference_threshold_multiplier
+      ),
+      cross_fitting_seed = simulation_seed + 1L
     )
+    testing_result <- cross_fitted_result$debiased
+  } else if (method == "oracle_pc") {
+    testing_result <- oracle_pc_mean_comparison(
+      group_1_sample = treatment_sample,
+      group_2_sample = control_sample,
+      population_leading_eigenvector = leading_eigenvector
+    )
+  } else if (method == "plug_in_pc") {
+    cross_fitted_result <- cross_fitted_pc_mean_comparison(
+      group_1_sample = treatment_sample,
+      group_2_sample = control_sample,
+      fold_number = cross_fitting_fold_number,
+      threshold_multiplier = threshold_multiplier,
+      mean_difference_threshold_multiplier = (
+        mean_difference_threshold_multiplier
+      ),
+      cross_fitting_seed = simulation_seed + 1L
+    )
+    testing_result <- cross_fitted_result$plug_in
+  }
+
+  simulation_results[[repetition_number]] <- list(
+    repeat_index = repeat_index,
+    simulation_seed = simulation_seed,
+    setting_id = setting_id,
+    method = method,
+    parameter_estimate = testing_result$parameter_estimate,
+    standard_error = testing_result$standard_error,
+    test_statistic = testing_result$test_statistic,
+    p_value = testing_result$p_value
   )
 }
 
-task_output <- list(
-  task_specification = task_specification,
-  simulation_results = do.call(rbind, batch_simulation_results),
-  simulation_settings = shared_simulation_input$simulation_settings
+
+# Save results --------------------------------------------------------------
+
+simulation_task_result_file <- file.path(
+  simulation_task_result_directory,
+  paste0(
+    "012_mean_comparison_task_",
+    task_id,
+    ".rds"
+  )
 )
-
-if (!validate_mean_comparison_task_output(
-  task_output = task_output,
-  expected_task_specification = task_specification,
-  expected_setting_specification = setting_specification,
-  expected_simulation_settings = shared_simulation_input$simulation_settings
-)) {
-  stop("Internal validation failed for task ", unique_id, ".")
-}
-
-temporary_result_file <- paste0(
-  current_result_file,
-  ".temporary_",
-  Sys.getpid()
+dir.create(
+  simulation_task_result_directory,
+  recursive = TRUE,
+  showWarnings = FALSE
 )
-on.exit(unlink(temporary_result_file), add = TRUE)
-saveRDS(task_output, file = temporary_result_file)
-
-if (!file.rename(temporary_result_file, current_result_file)) {
-  stop("Could not move the completed task result into place.")
-}
-
-message("Completed task ", unique_id, ".")
+saveRDS(
+  simulation_results,
+  file = simulation_task_result_file
+)
