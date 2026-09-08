@@ -1,83 +1,134 @@
-# Simulation grid ------------------------------------------------------------
+# File input ----------------------------------------------------------------
 
-simulation_setting_ids <- c(
-  "p0100_n0050", "p0100_n0200", "p0100_n0400",
-  "p0100_n0600", "p0100_n0800", "p1000_n0050",
-  "p1000_n0200", "p1000_n0400", "p1000_n0600",
-  "p1000_n0800"
+population_covariance_input_files <- c(
+  dimension_100 = file.path(
+    "..",
+    "data",
+    "raw",
+    "001_random_sparse_covariance_p100.rds"
+  ),
+  dimension_1000 = file.path(
+    "..",
+    "data",
+    "raw",
+    "001_random_sparse_covariance_p1000.rds"
+  )
 )
 
-# Assign every setting attribute from its setting ID.  These vectors are the
-# only place where the simulation grid is specified.
-feature_100_setting_ids <- c(
-  "p0100_n0050", "p0100_n0200", "p0100_n0400",
-  "p0100_n0600", "p0100_n0800"
-)
-feature_1000_setting_ids <- c(
-  "p1000_n0050", "p1000_n0200", "p1000_n0400",
-  "p1000_n0600", "p1000_n0800"
-)
-sample_size_50_setting_ids <- c("p0100_n0050", "p1000_n0050")
-sample_size_200_setting_ids <- c("p0100_n0200", "p1000_n0200")
-sample_size_400_setting_ids <- c("p0100_n0400", "p1000_n0400")
-sample_size_600_setting_ids <- c("p0100_n0600", "p1000_n0600")
-sample_size_800_setting_ids <- c("p0100_n0800", "p1000_n0800")
-projected_mean_setting_ids <- simulation_setting_ids
+# Sample size allocation ----------------------------------------------------
 
-simulation_setting_table <- data.frame(
-  setting = simulation_setting_ids,
-  feature_number = NA_integer_,
-  sample_size_per_group = NA_integer_,
-  population_mean_structure = NA_character_,
-  stringsAsFactors = FALSE
-)
-simulation_setting_table$feature_number[
-  simulation_setting_table$setting %in% feature_100_setting_ids
-] <- 100L
-simulation_setting_table$feature_number[
-  simulation_setting_table$setting %in% feature_1000_setting_ids
-] <- 1000L
-simulation_setting_table$sample_size_per_group[
-  simulation_setting_table$setting %in% sample_size_50_setting_ids
-] <- 50L
-simulation_setting_table$sample_size_per_group[
-  simulation_setting_table$setting %in% sample_size_200_setting_ids
-] <- 200L
-simulation_setting_table$sample_size_per_group[
-  simulation_setting_table$setting %in% sample_size_400_setting_ids
-] <- 400L
-simulation_setting_table$sample_size_per_group[
-  simulation_setting_table$setting %in% sample_size_600_setting_ids
-] <- 600L
-simulation_setting_table$sample_size_per_group[
-  simulation_setting_table$setting %in% sample_size_800_setting_ids
-] <- 800L
-simulation_setting_table$population_mean_structure[
-  simulation_setting_table$setting %in% projected_mean_setting_ids
-] <- "projected_null_and_projected_alternative"
-
-if (anyNA(simulation_setting_table)) {
-  stop("Every simulation setting ID must specify dimension, sample size, and population means.")
+if (setting_id %in% c(1L, 6L, 11L, 16L)) {
+  control_sample_size <- 50L
+  treatment_sample_size <- 50L
+} else if (setting_id %in% c(2L, 7L, 12L, 17L)) {
+  control_sample_size <- 200L
+  treatment_sample_size <- 200L
+} else if (setting_id %in% c(3L, 8L, 13L, 18L)) {
+  control_sample_size <- 400L
+  treatment_sample_size <- 400L
+} else if (setting_id %in% c(4L, 9L, 14L, 19L)) {
+  control_sample_size <- 600L
+  treatment_sample_size <- 600L
+} else {
+  control_sample_size <- 800L
+  treatment_sample_size <- 800L
 }
-feature_numbers <- sort(unique(simulation_setting_table$feature_number))
-simulation_repeat_number <- 1000L
-repeat_number_per_batch <- 10L
 
 
-# Mean-comparison settings ---------------------------------------------------
+# Dimension allocation ------------------------------------------------------
 
-cross_fitting_fold_number <- 5L
-threshold_multiplier <- 1.25
-mean_difference_threshold_multiplier <- 1.25
-projected_null_mean_difference_size <- 1.00
-projected_null_support_size <- 10L
-projected_alternative_mean_difference_size <- 0.25
-projected_alternative_support_size <- 10L
-significance_level <- 0.05
-mean_comparison_simulation_seed <- 20260829L
+if (setting_id %in% c(
+  1L, 2L, 3L, 4L, 5L,
+  11L, 12L, 13L, 14L, 15L
+)) {
+  dimension <- 100L
+  population_covariance_input_file <- (
+    population_covariance_input_files[["dimension_100"]]
+  )
+} else {
+  dimension <- 1000L
+  population_covariance_input_file <- (
+    population_covariance_input_files[["dimension_1000"]]
+  )
+}
 
-simulation_method_ids <- c(
-  "Debiased PC" = "debiased_pc",
-  "Oracle PC" = "oracle_pc",
-  "Plug-in PC" = "plug_in_pc"
+population_covariance_result <- readRDS(
+  population_covariance_input_file
+)
+covariance_matrix <- as.matrix(
+  population_covariance_result$covariance_matrix
+)
+leading_eigenvector <- (
+  population_covariance_result$leading_eigenvectors[, 1L]
+)
+largest_loading_index <- which.max(abs(leading_eigenvector))
+if (leading_eigenvector[largest_loading_index] < 0) {
+  leading_eigenvector <- -leading_eigenvector
+}
+
+
+# Mean allocation -----------------------------------------------------------
+
+active_feature_indices <- order(
+  abs(leading_eigenvector),
+  decreasing = TRUE
+)[1:10]
+projected_null_mean_difference <- rep(0, dimension)
+
+for (pair_index in 1:5) {
+  first_active_position <- 2L * pair_index - 1L
+  second_active_position <- 2L * pair_index
+  first_feature_index <- active_feature_indices[first_active_position]
+  second_feature_index <- active_feature_indices[second_active_position]
+
+  projected_null_mean_difference[first_feature_index] <- (
+    leading_eigenvector[second_feature_index]
+  )
+  projected_null_mean_difference[second_feature_index] <- (
+    -leading_eigenvector[first_feature_index]
+  )
+}
+projected_null_mean_difference <- (
+  projected_null_mean_difference /
+    sqrt(sum(projected_null_mean_difference^2))
+)
+
+if (setting_id %in% c(
+  1L, 2L, 3L, 4L, 5L,
+  6L, 7L, 8L, 9L, 10L
+)) {
+  treatment_minus_control_mean <- projected_null_mean_difference
+} else {
+  truncated_leading_eigenvector <- rep(0, dimension)
+  truncated_leading_eigenvector[active_feature_indices] <- (
+    leading_eigenvector[active_feature_indices]
+  )
+  projected_alternative_addition <- (
+    0.25 * truncated_leading_eigenvector /
+      as.numeric(
+        crossprod(
+          leading_eigenvector,
+          truncated_leading_eigenvector
+        )
+      )
+  )
+  treatment_minus_control_mean <- (
+    projected_null_mean_difference +
+      projected_alternative_addition
+  )
+}
+
+control_mean <- -treatment_minus_control_mean / 2
+treatment_mean <- treatment_minus_control_mean / 2
+
+
+simulation_config <- list(
+  setting_id = setting_id,
+  control_mean = control_mean,
+  treatment_mean = treatment_mean,
+  control_sample_size = control_sample_size,
+  treatment_sample_size = treatment_sample_size,
+  covariance_matrix = covariance_matrix,
+  dimension = dimension,
+  distribution = "normal"
 )
