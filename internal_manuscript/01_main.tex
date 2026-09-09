@@ -216,27 +216,32 @@ The details of this simulation are listed in \Cref{app: for the figure}.
 
 \subsection{Intuition of One-step Correction}\label{section: intuition}
 
-The intuition behind one-step estimation is the von Mises expansion, which is also seen as a distributional Taylor expansion in the semiparametric literature. In this subsection, we will use $v_1$ for the projection direction $u$.  We relate the testing problem to the (population) projected difference estimation:
-$\theta=\left(\mu_X-\mu_Z\right)^{\top} v_1$.
-If one can establish an asymptotically normal estimator of $\theta$, then it can be directly applied to construct confidence intervals and derive a corresponding test for $\theta = 0$. 
+\begin{revblock}
+In this section, we use a simplified example to illustrate the intuition of one-step correction in statistics. Suppose we are interested in estimating the following quantity $\gamma = \mu_X^\top v_1$, where $\mu_X$ is the population mean and $v_1$ is the leading PC direction. If $v_1$ is known and the mean is estimated, $\mu_X^{(m)\top} v_1$ is close to a Gaussian distribution, which greatly facilitates inference. Consider the plug-in estimator $ \gamma_{\rm pi}^{(-m)} = \mu_X^{(m) \top} v_1^{(-m)}$.
 
-To further simplify the presentation, we will consider a one-sample version of $\theta$ to illustrate the aforementioned principle. The extension to the corresponding two-sample problem is straightforward. Consider $\gamma = \mu_X^\top v_1$ and a plug-in estimator $\hat \gamma_{\rm pi}^{(-m)} = \mu_X^{(m) \top} v_1^{(-m)}$. One may attempt to use the following steps to characterize the asymptotic behavior of $\gamma_{\rm pi}^{(-m)}$:
+% The intuition behind one-step estimation is the von Mises expansion, which is also seen as a distributional Taylor expansion in the semiparametric literature. In this subsection, we will use $v_1$ for the projection direction $u$.  We relate the testing problem to the (population) projected difference estimation:
+% $\theta=\left(\mu_X-\mu_Z\right)^{\top} v_1$.
+% If one can establish an asymptotically normal estimator of $\theta$, then it can be directly applied to construct confidence intervals and derive a corresponding test for $\theta = 0$. 
+
+% To further simplify the presentation, we will consider a one-sample version of $\theta$ to illustrate the aforementioned principle. The extension to the corresponding two-sample problem is straightforward. Consider $\gamma = \mu_X^\top v_1$ and a plug-in estimator $\hat \gamma_{\rm pi}^{(-m)} = \mu_X^{(m) \top} v_1^{(-m)}$.
+
+One may attempt to use the following steps to characterize the asymptotic behavior of $\gamma_{\rm pi}^{(-m)}$:
 \begin{equation}\label{eq: example decomposition}
       \gamma_{\rm pi}^{(-m)} - \gamma =  (\mu_X^{(m)} - \mu_X)^\top v_1 +  (\mu_X^{(m)} - \mu_X)^\top(v_1^{(-m)} - v_1)+ \mu_X^\top (v_1^{(-m)} - v_1).
 \end{equation}
-The first term in the RHS of \Cref{eq: example decomposition} converges to a normal distribution after proper normalization, which we will refer to as the CLT term. The second term is often of a higher order than the CLT term because both $\mu_X^{(m)} - \mu_X$ and $v_1^{(-m)} - v_1$ shrink to zero and are mutually independent. The third term corresponds to the bias due to using the estimated version $v_1^{(m)}$. When the dimension of $X$ is large, $v_1^{(-m)}$ often converges to $v_1$ at a slower rate than the CLT term and its irregular distribution (partially due to regularization such as sparsity induction) dominates the CLT term. 
+The first term in the RHS of \Cref{eq: example decomposition} converges to a normal distribution after proper normalization, which we will refer to as the CLT term. The second term is often of a higher order than the CLT term because it is a product of two terms both shrinking to zero.
+The third term usually prevents $\gamma_{\rm pi}^{(-m)}$ from establishing a Gaussian distribution in high-dimensional settings. It corresponds to the bias due to using the estimated $v_1^{(m)}$. When the dimension of $X$ is large, $v_1^{(-m)}$ often converges to $v_1$ at a slower rate than the CLT term, and its irregular distribution---possibly due to the induced sparsity---dominates the CLT term.  
 
-Fix $\mu_X$, we can treat $\mu_X^\top v_1^{(-m)}$ as a mapping from the distribution associated with $\mathcal{D}^{(-m)}$, denoted as $P_n^{(-m)}$, to a number. 
-% If we denote the sample distribution as $P_n^{(-m)}$, we would first calculate its leading eigenvector, then take the inner product with $\mu_X$. 
-So the third term in \eqref{eq: example decomposition} can be rewritten as
+A closer examination of this problematic term enlightens a solution. For a fixed $\mu_X$, we can treat $\mu_X^\top v_1^{(-m)}$ as a mapping from the distribution associated with $\mathcal{D}^{(-m)}$, denoted as $P_n^{(-m)}$, to a number. So the third term in \eqref{eq: example decomposition} can be rewritten as
 \begin{equation*}
 \mu_X^{\top}v_1^{(-m)}-\mu_X^{\top}v_1 =: f_\gamma(P_n^{(-m)}) - f_\gamma(P),
 \end{equation*}
-where we use $P$ to denote the law of $X$. The von Mises expansion states that for regular $f_{\gamma}$'s, we can perform the following Taylor expansion:
+where we use $P$ to denote the law of $X$. The function $f_{\gamma}(\cdot)$ takes in a distribution and returns the inner product, which can be quite opaque. However, the von Mises expansion states that for regular $f_{\gamma}$'s, we can linearize this difference:
 \begin{equation}\label{eq: example_von_mises}
    f_\gamma(P_n^{(-m)}) - f_\gamma(P) = -E_P[\varphi_\gamma(X;P_n^{(-m)})] + \text{higher order remainder }
 \end{equation}
-with a function $\varphi_\gamma$ that can sometimes be explicitly calculated---which is known as the influence function of the parameter $\gamma$. See \cite{fisher2021visually} for more intuition and visual illustrations on the expansion.
+with a function $\varphi_\gamma$ that can be explicitly calculated---which is known as the influence function of the parameter $\gamma$. So now we know the third term in \eqref{eq: example decomposition} is essentially an expectation plus a statistically smaller term. (See \cite{fisher2021visually} for more intuition and visual illustrations on the expansion.)
+\end{revblock}
 
 This motivates the bias correction procedure where people use a sample independent from $\mathcal{D}^{(-m)}$ to estimate the expectation wrapping $\varphi_\gamma$ in \eqref{eq: example_von_mises}, and add it on both sides of \eqref{eq: example decomposition}. Under certain conditions, we can show that 
 $
@@ -516,6 +521,10 @@ While the projection direction follows the null, we set $\|\mu_X - \mu_Z\|$ to b
 %The results in \Cref{fig: main simulation} B are under the alternative hypothesis. We dropped the plug-in statistic but include $T_{\rm 1s}(v_2)$ and $T_{\rm anc}(v_2)$ that concern the second PC direction.
 To evaluate power under the alternative hypothesis, we dropped the plug-in statistic and included a secondary direction with $T_{\rm 1s}(v_2)$ and $T_{\rm anc}(v_2)$ that utilizes the second PC (\Cref{fig: main simulation}B). The signal aligned with PC1 $v_1$ is set to be much smaller than that with PC2 $v_2$, therefore, the observed rejection rate of $T_{\rm 1s}(v_1)$ (resp. $T_{\rm anc}(v_1)$) is lower than $T_{\rm 1s}(v_2)$ (resp. $T_{\rm anc}(v_1)$). Notably, $T_{\rm anc}(v_1)$ can adaptively adjust the projection direction to where the stronger signal lies, even when it is anchored to the sub-optimal proxy $v_1$. 
 
+\begin{revblock}
+    The presented results is simulated using block-diagonal covariance matrices. In \Cref{app: additional simulation}, we provide additional results under unstructured sparse covariance matrices.
+\end{revblock}
+
 \section{An Application to Immune Cell Gene Expression in a Lupus Study}\label{section: real data}
 
 \subsection{Dataset and Pre-processing}
@@ -537,7 +546,11 @@ Next, we applied the standard shifted-log-normalization with a size factor (e.g.
 
 \subsection{Testing Results}
 
-The anchored-Lasso test $T_{\rm anc}\left(v_1\right)$ and the debiased test for the top four PC directions $T_{\rm 1s}\left(v_1\right)-T_{\rm 1s}\left(v_4\right)$ are applied to the CD4 T lymphocytes (T4), a critical cell type that helps to coordinate the immune response (\Cref{fig: upset}, results for other cell types are presented in \Cref{app: immune cell results}). For $T_{\rm anc}\left(v_1\right)$, the reported p-value corresponds to the global null, whereas the debiased tests $T_{\rm 1s}(v_k)$, $k = 1,\ldots,4$, correspond to the projected nulls $(\mu_X - \mu_Z)^\top v_k = 0$, $k = 1,\ldots,4$, respectively. The anchored test and the PC1, PC4 debiased tests report significant differences at the standard $0.05$ threshold. The latter two results answer our motivating questions in the Introduction (\Cref{fig: motivation}B): the observed distributional difference between case and control samples, in the directions of PC1 and PC4, is indeed statistically significant. 
+The anchored-Lasso test $T_{\rm anc}\left(v_1\right)$ and the debiased test for the top four PC directions $T_{\rm 1s}\left(v_1\right)-T_{\rm 1s}\left(v_4\right)$ are applied to the CD4 T lymphocytes (T4), a critical cell type that helps to coordinate the immune response (\Cref{fig: upset}, results for other cell types are presented in \Cref{app: immune cell results}). For $T_{\rm anc}\left(v_1\right)$, the reported p-value corresponds to the global null, whereas the debiased tests $T_{\rm 1s}(v_k)$, $k = 1,\ldots,4$, correspond to the projected nulls $(\mu_X - \mu_Z)^\top v_k = 0$, $k = 1,\ldots,4$, respectively. The anchored test and the PC1, PC4 debiased tests report significant differences at the standard $0.05$ threshold. 
+\begin{revblock}
+The latter two results answer our motivating questions in the Introduction (\Cref{fig: motivation}B): the observed distributional difference between case and control samples, in the directions of PC1 and PC4, is marginally significant. However, when comparing a large number of PC directions, we need to adjust the p-values to control the family-wise error rate.
+\end{revblock}
+
 
 %\subsection{Further Assessment of the Tests}
 Further details regarding the systematic signal are displayed in \Cref{fig: upset} and \ref{fig: interpretation}. The PCs define the ``active genes", which are defined as those genes consistently (across different data splits) taking non-zero loadings in $\beta^{(-m)}$ or $v_k^{(-m)}$: specifically, we define a gene to be active if it takes non-zero loadings in more than half of the estimated high-dimensional sparse vectors (``majority voting''). Assessing how much the non-zero genes vary between splits can also offer researchers basic intuition regarding the noise level when estimating $\beta^{(-m)}, v_k^{(-m)}$.   
@@ -1092,7 +1105,7 @@ Under our assumptions, the products above
    & \left(\mu_X^{(-m)}-\mu_Z^{(-m)}\right)^{\top}D_0\left(\Sigma-\Sigma^{(-m)}\right) \int_0^1(v(t)-v(0)) d t
 \end{aligned}
 \end{equation}
- are all of order $o_P(n^{-1/2})$. We present the details of the argument in \Cref{lemma: bound terms in remainder}. Combine this result with \eqref{eq: simple X term} and \eqref{eq: simple Z term}, we conclude our proof.
+ are all of order $o_P(n^{-1/2})$. We present the details of the argument in \Cref{lemma: bound terms in remainder}. Combining this result with \eqref{eq: simple X term} and \eqref{eq: simple Z term}, we conclude our proof.
 \end{proof}
 
 In the following lemma, we show the remainder terms are small under the conditions listed in the main text.
@@ -1659,6 +1672,26 @@ Define $\Sigma_1=\left(\sigma_{i j}\right) \in \mathbb{R}^{10 \times 10}$ with $
 Let $\Sigma_X=\Sigma_Z \in \mathbb{R}^{300 \times 300}$ be a block diagonal matrix with 30 blocks. The first two blocks are $\Sigma_1$ and $\Sigma_2$, while the remaining blocks are identity matrices $I_{10}$.
 
 After generating the data matrices, we randomly choose half of the entries to set to $0$. Moreover, we also shrink any value less than $0.5$ to $0$, including all negative values. 
+
+\section{More Simulation Results}
+\label{app: additional simulation}
+
+\begin{revblock}
+\subsection{Simulation Settings}
+% introduce cov matrix struutre
+
+% is the true PC sparse?
+
+% introduce mean strcutre for null and alternative
+
+% other important simulation details
+
+% present the result
+
+\subsection{Methods Details}
+% describe how we estimatte the sparse matrix and get the PC
+
+\end{revblock}
 
 
 \section{More Details on Real Data Analysis}\label{app: immune cell results}
