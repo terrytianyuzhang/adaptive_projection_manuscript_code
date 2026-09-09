@@ -4,30 +4,30 @@ simulation_task_table_input_file <- file.path(
   "..",
   "data",
   "intermediate",
-  "021_mean_comparison_task_table.csv"
+  "031_mean_comparison_task_table.csv"
 )
 simulation_config_source_file <- file.path(
   "..",
   "src",
-  "021_mean_comparison_simulation_config.R"
+  "031_mean_comparison_simulation_config.R"
 )
 simulation_task_result_directory <- file.path(
   "..",
   "data",
   "intermediate",
-  "022_mean_comparison_task_result"
+  "032_mean_comparison_task_result"
 )
 collected_simulation_output_file <- file.path(
   "..",
   "data",
   "intermediate",
-  "024_mean_comparison_simulation.rds"
+  "034_mean_comparison_simulation.rds"
 )
 rejection_rate_summary_output_file <- file.path(
   "..",
   "data",
   "final",
-  "024_mean_comparison_rejection_rate_summary.rds"
+  "034_mean_comparison_rejection_rate_summary.rds"
 )
 
 
@@ -45,7 +45,7 @@ simulation_task_table <- read.csv(
 simulation_task_result_files <- file.path(
   simulation_task_result_directory,
   paste0(
-    "022_mean_comparison_task_",
+    "032_mean_comparison_task_",
     simulation_task_table$id,
     ".rds"
   )
@@ -229,3 +229,4 @@ saveRDS(
   rejection_rate_summary,
   file = rejection_rate_summary_output_file
 )
+

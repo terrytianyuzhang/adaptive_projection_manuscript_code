@@ -4,7 +4,7 @@ simulation_task_table_output_file <- file.path(
   "..",
   "data",
   "intermediate",
-  "021_mean_comparison_task_table.csv"
+  "031_mean_comparison_task_table.csv"
 )
 
 
@@ -43,3 +43,4 @@ write.csv(
   row.names = FALSE,
   quote = FALSE
 )
+

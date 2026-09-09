@@ -4,13 +4,13 @@ rejection_rate_summary_input_file <- file.path(
   "..",
   "data",
   "final",
-  "024_mean_comparison_rejection_rate_summary.rds"
+  "034_mean_comparison_rejection_rate_summary.rds"
 )
 type_1_error_and_power_plot_output_file <- file.path(
   "..",
   "data",
   "final",
-  "026_mean_comparison_type_1_error_and_power.pdf"
+  "036_mean_comparison_type_1_error_and_power.pdf"
 )
 
 
@@ -148,3 +148,4 @@ ggplot2::ggsave(
   width = 9,
   height = 7
 )
+

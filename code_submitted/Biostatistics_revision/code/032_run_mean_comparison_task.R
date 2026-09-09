@@ -1,4 +1,4 @@
-# Run as: Rscript 022_run_mean_comparison_task.R task_id
+# Run as: Rscript 032_run_mean_comparison_task.R task_id
 
 # File input and output ------------------------------------------------------
 
@@ -6,12 +6,12 @@ simulation_task_table_input_file <- file.path(
   "..",
   "data",
   "intermediate",
-  "021_mean_comparison_task_table.csv"
+  "031_mean_comparison_task_table.csv"
 )
 simulation_config_source_file <- file.path(
   "..",
   "src",
-  "021_mean_comparison_simulation_config.R"
+  "031_mean_comparison_simulation_config.R"
 )
 mean_comparison_source_file <- file.path(
   "..",
@@ -22,7 +22,7 @@ simulation_task_result_directory <- file.path(
   "..",
   "data",
   "intermediate",
-  "022_mean_comparison_task_result"
+  "032_mean_comparison_task_result"
 )
 
 
@@ -164,7 +164,7 @@ for (repetition_number in 1:repetition_number_per_batch) {
 simulation_task_result_file <- file.path(
   simulation_task_result_directory,
   paste0(
-    "022_mean_comparison_task_",
+    "032_mean_comparison_task_",
     task_id,
     ".rds"
   )
