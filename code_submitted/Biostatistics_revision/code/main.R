@@ -1,25 +1,19 @@
-library(here)
+# Required source scripts:
+# src/001_find_gap_covariance.R
+# src/002_threshold_sparse_covariance.R
+# src/031_mean_comparison_simulation_config.R
 
-work_directory <- file.path(
-  here(),
-  "code_submitted",
-  "Biostatistics_revision",
-  "code"
-)
-source_directory <- file.path(
-  here(),
-  "code_submitted",
-  "Biostatistics_revision",
-  "src"
-)
-data_directory <- file.path(
-  here(),
-  "code_submitted",
-  "Biostatistics_revision",
-  "data"
-)
+# find proper covariance matrices for the simulation
+file.path(".", "001_find_sparse_covariance_matrix.R") |> source()
 
-file.path(work_directory, "001_find_sparse_covariance_matrix.R") |> source()
-file.path(work_directory, "002_validate_sparse_covariance_estimator.R") |> source()
-file.path(work_directory, "003_run_mean_comparison_simulation.R") |> source()
-file.path(work_directory, "004_plot_mean_comparison_simulation.R") |> source()
+# Run the simulation with 16 cores.
+# bash 035_run_complete_mean_comparison_pipeline.sh 16
+
+# Create type-I and power plot using the output from 035_
+file.path(".", "036_plot_mean_comparison_results.R") |> source()
+
+# Create publciation plot
+file.path(".", "037_")
+
+
+

@@ -1,18 +1,21 @@
 # File input and output -------------------------------------------------------
 
 find_gap_covariance_source_file <- file.path(
-  source_directory,
+  "..",
+  "src",
   "001_find_gap_covariance.R"
 )
 
 sparse_covariance_output_files <- c(
   feature_100 = file.path(
-    data_directory,
+    "..",
+    "data",
     "raw",
     "001_random_sparse_covariance_p100.rds"
   ),
   feature_1000 = file.path(
-    data_directory,
+    "..",
+    "data",
     "raw",
     "001_random_sparse_covariance_p1000.rds"
   )
