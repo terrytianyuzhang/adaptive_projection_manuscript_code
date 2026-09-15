@@ -522,7 +522,7 @@ While the projection direction follows the null, we set $\|\mu_X - \mu_Z\|$ to b
 To evaluate power under the alternative hypothesis, we dropped the plug-in statistic and included a secondary direction with $T_{\rm 1s}(v_2)$ and $T_{\rm anc}(v_2)$ that utilizes the second PC (\Cref{fig: main simulation}B). The signal aligned with PC1 $v_1$ is set to be much smaller than that with PC2 $v_2$, therefore, the observed rejection rate of $T_{\rm 1s}(v_1)$ (resp. $T_{\rm anc}(v_1)$) is lower than $T_{\rm 1s}(v_2)$ (resp. $T_{\rm anc}(v_1)$). Notably, $T_{\rm anc}(v_1)$ can adaptively adjust the projection direction to where the stronger signal lies, even when it is anchored to the sub-optimal proxy $v_1$. 
 
 \begin{revblock}
-    The presented results is simulated using block-diagonal covariance matrices. In \Cref{app: additional simulation}, we provide additional results under unstructured sparse covariance matrices.
+    The presented results are simulated under spike models. In \Cref{app: additional simulation}, we provide additional results under unstructured sparse covariance matrices.
 \end{revblock}
 
 \section{An Application to Immune Cell Gene Expression in a Lupus Study}\label{section: real data}
@@ -1673,26 +1673,61 @@ Let $\Sigma_X=\Sigma_Z \in \mathbb{R}^{300 \times 300}$ be a block diagonal matr
 
 After generating the data matrices, we randomly choose half of the entries to set to $0$. Moreover, we also shrink any value less than $0.5$ to $0$, including all negative values. 
 
-\section{More Simulation Results}
+\section{Simulation Under Unstructured Sparse Correlation}
 \label{app: additional simulation}
 
 \begin{revblock}
-\subsection{Simulation Settings}
-% introduce cov matrix struutre
 
-% is the true PC sparse?
+The simulation data in \Cref{section: simulation} is generated under spike models where the population eigenvectors are sparse. To illustrate that the proposed methods are applicable beyond these settings, we conducted supplementary simulation studies. In this section, we consider high-dimensional unstructured covariance matrices where the eigenvectors have dense supports over all the dimensions.
 
-% introduce mean strcutre for null and alternative
+\subsection{Unstructured Covariance Matrix}
+We considered two settings where $p\in\{100,1000\}$. The covariance matrix was determined as follows: We first created a symmetric matrix $A$
+with zero diagonal elements. We then selected $4p$ unordered off-diagonal pairs $\{i,j\}$ uniformly at
+random and assigned each selected $A_{ij} = A_{ji}$ a common random value. After obtaning $A$, the population covariance matrix was
+\[
+\Sigma=I_p+0.9\frac{A}{\lVert A\rVert_{\rm op}}.
+\]
+We iterated over several $A$'s and retained the first generated covariance matrix whose leading eigengap was at
+least $0.2$. For each dimension $p$, we fixed this covariance matrix across all repetitions and sample sizes.
 
-% other important simulation details
+Since we are altering, randomly, only $\sim p$ of the total $\sim p^2$ off-diagonal to non-zero numbers, such matrices are estimable in high-dimensional settings. This is because these matrices do not accumulate too many non-zero elements in each row or column. For both dimensions, the covariance matrices generated in this fashion typically have $8$ non-zero elements for each row. Both of them have a maximum of $17$ non-zero elements in a single row. Such matrices are sparse in a nicer way: in \cite{bickel2008covariance}, Theorem~1, the authors showed that hard-thresholding is effective for estimating this type of sparse matrices (our matrices lie in their $\mathcal{U}_\tau\left(0, c_0(p), M\right)$ class). Note that these matrices have dense eigenvectors.
 
-% present the result
+\subsection{Mean Shifts under Projected Null and Alternative}
 
-\subsection{Methods Details}
-% describe how we estimatte the sparse matrix and get the PC
+Let $S$ contain the ten coordinates with the largest absolute entries of
+$v_1$. We constructed a unit vector $\delta_\perp$, supported on $S$, by
+pairing these coordinates and swapping their $v_1$ loadings with alternating
+signs. This construction gives $\delta_\perp^\top v_1=0$. Under the projected
+null, the population mean difference was $5\delta_\perp$ for both dimensions.
+Consequently, the $\mu_X \neq \mu_Z$ substantially while
+still satisfying
+\[
+(\mu_X-\mu_Z)^\top v_1=0.
+\]
+For the alternative, we used
+\[
+\mu_X-\mu_Z=
+\begin{cases}
+\displaystyle
+\delta_\perp+0.25\cdot \frac{v_{1,S}}{v_1^\top v_{1,S}}, & p=100,\\[8pt]
+\displaystyle
+\delta_\perp+2\cdot \frac{v_{1,S}}{v_1^\top v_{1,S}}, & p=1000,
+\end{cases}
+\]
+where $v_{1,S}$ agrees with $v_1$ on $S$ and is zero elsewhere. We used a larger signal size ($2$) for $p=1000$ than $p = 100$ ($0.25$) to illustrate a more interesting power regime (which also reflects that higher dimensions make the problems harder). After determining the mean shifts, we used them to define the true mean for each group $\mu_X=(\mu_X-\mu_Z)/2$ and $\mu_Z=-(\mu_X-\mu_Z)/2$. The observations are normal vectors based on $(\mu_X, \Sigma)$ and $(\mu_Z, \Sigma)$. We used balanced sample sizes for both groups.
+
+\begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=\linewidth]{paper_plot/037_unstructured_rejection_rate.pdf}
+    \caption{Rejection rates in the unstructured sparse covariance simulation. The plug-in method rejects in all settings, while the debiased proposal has well-controlled size under the projected null. Error bars are $95\%$ Monte Carlo intervals.}
+    \label{appfig: unstructured sparse covariance simulation}
+\end{figure}
+
+\subsection{Simulation Results}
+
+We report the rejection rates at $p<0.05$ of two methods in \Cref{appfig: unstructured sparse covariance simulation}. The plug-in method always has a large rejection rate, regardless of whether it is under the projected null or the genuine alternative. It is not suitable to test the projected null where the signal is orthogonal to $v_1$ (left column). However, the debiased method has the desired property: it is well-calibrated under the projected null, which can be used to answer the question of whether the signal aligns with the eigenvector direction. Under the alternative, it also has competitive power. Although the plug-in method rejects much more often in the ($p = 1000$, alternative) setting, it comes at a price that it can only control type-I error when the means are identical.
 
 \end{revblock}
-
 
 \section{More Details on Real Data Analysis}\label{app: immune cell results}
 
