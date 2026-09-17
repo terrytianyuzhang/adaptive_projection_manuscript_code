@@ -332,7 +332,7 @@ Our main result in this section is formally presented below. We use $\phi_{X,n}$
          \item The nuisance parameters are estimated well: for any $\epsilon > 0$:
          \begin{equation}\label{eq: quarter rate} \lim_{n\rightarrow\infty}\mathbb{P}\left(\left\|\Sigma^{(-m)}-\Sigma\right\| \geq \epsilon n^{-1 / 4}\right) = 0.
          \end{equation}
-         Similar conditions also hold for $\left\|\mu_X-\mu_X^{(-m)}\right\| $ and $\left\|\mu_Z-\mu_Z^{(-m)}\right\|$.
+         Similar conditions also hold for $\|\mu_X-\mu_X^{(-m)}\| $ and $\|\mu_Z-\mu_Z^{(-m)}\|$.
     \end{itemize}
 Then under the projected null hypothesis $H_0^{\rm proj}(v_1)$, we have $T_{\rm 1s}(v_1) \stackrel{d}{\rightarrow} \mathcal{N}(0,1)$ as $n\rightarrow\infty$. 
 \end{theorem}
@@ -342,10 +342,13 @@ is presented in \Cref{app: debiased stat}.
 
 Condition \eqref{eq: quarter rate} in \Cref{th: one step} is the most essential for establishing the asymptotic normality. They require the high-dimensional quantities $\Sigma$, $\mu_X,\mu_Z$ to be estimated at a rate faster than $n^{-1/4}$ (recall in low-dimensional settings they can be estimated in a parametric rate $\sqrt{p/n}$). This type of condition is common in the one-step estimation literature---including the well-known doubly-robust estimator of average treatment effect \citep{glynn2010introduction}. When $p = p_n$ diverges faster than $n^{1/2}$, the above $\sqrt{p/n}$ rate no longer satisfies our requirement. Additional structures and regularization techniques are necessary to improve estimation accuracy.
 
-In our case, we can apply some regularized estimators of $\mu_X, \mu_Z$ to achieve the $o_P(n^{-1/4})$ rate. One choice is simply calculating simple sample means from $\mathcal{D}^{(-m)}$ and hard thresholding each entry at $\sqrt{\log p/n}$. This procedure and a close variation (``soft-thresholding") give estimators converging in rate $\sqrt{\log p/n} \ll n^{-1/4}$, assuming a small number of entries of $\mu_X$ are non-zero \cite{johnstone2019gaussian}.
+\begin{revblock}
+In our case, we can apply some regularized estimators of $\mu_X, \mu_Z$ to achieve the $o_P(n^{-1/4})$ rate. One choice is simply calculating simple sample means from $\mathcal{D}^{(-m)}$ and hard thresholding each entry at $\sqrt{\log p/n}$. This procedure and its close variations give estimators converging at rate $\sqrt{\log p/n} \ll n^{-1/4}$, assuming a small number of entries of $\mu_X$ are non-zero or it lies in some $l_q$-balls with $0<q<1$ \cite{donoho1994, johnstone2019gaussian}.
 % In the statistical literature, this type of estimator has been extensively discussed in wavelet nonparametric regression in the 1990s \cite{donoho1995noising}. It is also related to James-Stein estimator \cite{stein1956inadmissibility} and Lasso under orthonormal designs (\cite{tibshirani1996regression}, Section~10).
 
-Estimation of high-dimensional covariance matrices is a more recent topic and has been extensively studied in the past two decades. The high dimensionality is often tackled by some covariance structures such as low-rank, approximate block-diagonal, or sparsity. The theoretical rates of many estimators, measured in the operator spectral norm $\|\Sigma^{(-m)} - \Sigma\|$, are often of order $\sqrt{\log p/n}$ or $n^{-\alpha/(2\alpha + 1)}$ with some regularity index $\alpha > 0$, possibly achieving the required $o(n^{-1/4})$ rate in \eqref{eq: quarter rate}. We refer our readers to (e.g., \cite{fan2016overview}) for more extensive surveys of frequently imposed structures and available methods.
+Estimating high-dimensional covariance matrices is comparatively more recent. This task is possible when the covariance matrix satisfy certain structures including low-rank, approximate block-diagonal, or sparsity. The theoretical rates of many estimators, measured in the operator spectral norm $\|\Sigma^{(-m)} - \Sigma\|$, are often of order $\sqrt{\log p/n}$ or $n^{-\alpha/(2\alpha + 1)}$ with some regularity index $\alpha > 0$, possibly achieving the required $o(n^{-1/4})$ rate in \eqref{eq: quarter rate}. For light-tail distributions, computing sample covariance matrix and thresholding small elements to zero can cover a wide range of sparse truth (also illustrated in our \Cref{app: additional simulation}). Modifying the sample covariance matrix to some robust versions, the thresholding pipeline can achieve the $o_P(n^{-1/4})$ rate even when data is much more dispersed \cite{avella2018robust}.
+% We also refer our readers to (e.g., \cite{fan2016overview}) for more extensive surveys.
+\end{revblock}
 
 \Cref{th: one step} is stated for $u = v_1$, but the procedure extends directly to other leading PCs $v_j$ under mild regularity conditions, with essentially the same analysis. However, generalizing it to an arbitrary $u$ is more challenging, as it requires deriving the explicit form of the influence function and quantifying the estimation accuracy requirements for the nuisance parameters. The details are handled on a case-by-case basis. However, if $u$ is an approximately sparse vector, the approximate orthogonality framework that will be introduced soon provides a more suitable and less restrictive approach.
 
@@ -1716,6 +1719,10 @@ For the alternative, we used
 \]
 where $v_{1,S}$ agrees with $v_1$ on $S$ and is zero elsewhere. We used a larger signal size ($2$) for $p=1000$ than $p = 100$ ($0.25$) to illustrate a more interesting power regime (which also reflects that higher dimensions make the problems harder). After determining the mean shifts, we used them to define the true mean for each group $\mu_X=(\mu_X-\mu_Z)/2$ and $\mu_Z=-(\mu_X-\mu_Z)/2$. The observations are normal vectors based on $(\mu_X, \Sigma)$ and $(\mu_Z, \Sigma)$. We used balanced sample sizes for both groups.
 
+\subsection{Implementation of the Plug-in and Debiased Methods}
+
+We implemented both methods using five-fold cross-fitting. When estimating the covariance matrix, we first compute the simple sample covariance matrix pooling both control and treatment samples. Afterwards, we obtain the hard-thresholded estimator $\Sigma^{(-m)}$ by truncating off-diagonal elements smaller than $\sim \sqrt{\log p / (N_Z + N_Z)}$ to zero. The other nuisance including $\widehat{\lambda}_1^{(-m)} \text { and } \widehat{v}_1^{(-m)}$ are directly computed using the matrix estimator. Under the row-wise sparsity and eigen-gap, the theoretical estimation errors of the nuisance are of order $\sqrt{\log p / (N_X + N_Z)}$, smaller than the requirement in \Cref{th: one step}.
+
 \begin{figure}[!tbp]
     \centering
     \includegraphics[width=\linewidth]{paper_plot/037_unstructured_rejection_rate.pdf}
@@ -1725,7 +1732,7 @@ where $v_{1,S}$ agrees with $v_1$ on $S$ and is zero elsewhere. We used a larger
 
 \subsection{Simulation Results}
 
-We report the rejection rates at $p<0.05$ of two methods in \Cref{appfig: unstructured sparse covariance simulation}. The plug-in method always has a large rejection rate, regardless of whether it is under the projected null or the genuine alternative. It is not suitable to test the projected null where the signal is orthogonal to $v_1$ (left column). However, the debiased method has the desired property: it is well-calibrated under the projected null, which can be used to answer the question of whether the signal aligns with the eigenvector direction. Under the alternative, it also has competitive power. Although the plug-in method rejects much more often in the ($p = 1000$, alternative) setting, it comes at a price that it can only control type-I error when the means are identical.
+We report the rejection rates at $p<0.05$ of two methods in \Cref{appfig: unstructured sparse covariance simulation}. The plug-in method always has a large rejection rate, regardless of whether it is under the projected null or the genuine alternative. It is not suitable to test the projected null where the signal is orthogonal to $v_1$ (left column). However, the debiased method has the desired property: it is well-calibrated under the projected null, which can be used to answer the question of whether the signal aligns with the eigenvector direction. Under the alternative, it also has competitive power. Although the plug-in method rejects much more often in the ($p = 1000$, alternative) setting, it can only control type-I error when the means are exactly identical.
 
 \end{revblock}
 

@@ -124,12 +124,16 @@ The \texttt{SPC.cv} function performs cross-validation for the first sparse prin
 To perform cross-validation for the second sparse principal component, the same procedure is applied to the deflated matrix $X-udv^\top$, where $udv^\top$ is the rank-one component obtained by applying \texttt{SPC} to the original data matrix $X$.
 \end{quote}
 
-\textcolor{teal}{Sensitivity analysis}
+We also conducted a set of simulations with a different strategy for PC estimation, detailed in the response of question 5 below. 
 
 \begin{shaded}  
 5. Simulation design and coverage.
 The simulations nicely demonstrate type-I error and power for a specific zero-inflated Gaussian block-correlation structure. Given the broad applicability of the method, I wonder if the authors could (or at least briefly discuss): i) additional covariance structures (e.g., more diffuse correlations or non-block patterns); ii)heavier-tailed distributions or different sparsity levels in the mean shift; iii) more extreme sample-size imbalance between groups. iv) Even a short summary in the Supplement (with pointers in the main text) would reassure readers about robustness.
 \end{shaded}
+
+To verify the robustness of the proposal, a set of supplementary simulations was added to the appendix section ``Simulation Under Unstructured Sparse Correlation". This study aims to provide more variety in the simulation setting and method details. Specifically: 1) We considered unstructured covariance matrices. They do not have block correlation; rather, they are sparse in a nicer but natural fashion that permits effective estimation (row-sparse). 2) As a result, the true leading PC vectors are not sparsely supported. But it is still possible to estimate them because the covariance matrix has tamed structure and enough eigen-gaps. 3) We applied hard-thresholding to estimate the sparse covariance matrix first and then compute the eigen systems. This strategy is supported by rigorous literature work (see detailed discussion in the appendix) and cooperates well with the proposed framework.
+
+We also expanded the discussion in section ``Debiased Tests for the Projected Null" to address the other comments. We added a short note on near-sparse means estimation---they may have full supports but not too many entries can have large values. Estimating a high-dimensional mean without constraints in general is very challenging when the errors are measured in $\|\cdot\|_2$-norm. Sparse covariance matrix estimation is also possible using robust thresholding estimators: these methods typically only requires the distributions have entry-wise forth-moments, instead of the light-tail assumptions that require all moments.
 
 \begin{shaded}
 6. Interpretation of the lupus application results.
@@ -165,6 +169,8 @@ The proposed method in principle works for single-cell data without log normaliz
 For the debiased tests along PC1–PC4, it would be good to clarify how multiple testing is handled when jointly interpreting these projected nulls. Is any correction applied when simultaneously testing four projections? If not, perhaps note that the p-values are marginal for each direction and suggest how one might adjust them if using multiple PCs in practice.
 \end{shaded}
 
+Thank you for your careful reading. The reported p-values are marginal with no adjustment. They need to be adjusted to control the family-wise error rate when we conduct a large number of projective tests. We added this note to the results section of the Lupus study.
+
 \newpage
 \section{Reviewer 2's Comments}
 
@@ -178,6 +184,15 @@ For the debiased tests along PC1–PC4, it would be good to clarify how multiple
 The manuscript motivates projection-based testing using sparse principal component directions. However, there exists a substantial literature on projection-based and sparse high-dimensional two-sample testing procedures. The paper would benefit from a clearer discussion of how the proposed approach differs from or improves upon existing methods such as projection pursuit tests, sparse mean testing approaches, and screening-based two-sample testing procedures. Clarifying the conceptual novelty and positioning within the broader literature would significantly strengthen the contribution.
 \end{shaded}
 
+Thank you for the suggestions. We added more details in the introduction to highlight the contribution of this work:
+
+\begin{itemize}
+    \item For the one-step correction proposal, we work under the general theoretical framework. However, an eigenvector is not a simple linear mapping of the distribution. The exact details of the one-step correction, as well as its theoretical guarantee, were novel in this work. 
+    \item For the anchored projection proposal, we emphasized that regular Gaussian statistics can be achieved under mild conditions without debiasing. Cross-fitting framework, using PC1 as the anchoring proxy and the equivalent means under the null hypothesis enabled this interesting regime. It has never been explored in the literature that this simple and application-relevant scheme would lead to regular inferential procedures. The closest one in the literature would be \cite{liu2022multiple}: However, their result was not established under the null hypothesis (because there was no proxy anchoring direction), the classifier aims at the unique optimal direction, and they implemented sample-splitting rather than cross-fitting (although they proposed procedures to enhance the power due to a smaller sample size).
+\end{itemize}
+
+We also added one paragraph at the end of the introduction section to discuss several canonical high-dimensional mean comparison methods. Although this work targets high-dimensional mean comparison, the specific mathematical formulation of our problem is novel and more structured compared with the most commonly considered global null. Our method was motivated more by the debiasing and cross-validation literature---so in this paragraph, we also emphasize this difference and try not to mislead the readers to the line of research reviewed in \cite{huang2022overview}.
+
 \begin{shaded}
     2. Statistical formulation of the projected hypothesis
 
@@ -187,6 +202,8 @@ H_{0, proj}(u): (\mu_X - \mu_Z)^\top u = 0
 $$
 where the projection direction $u$ is estimated from the data. When the projection direction is random, the null hypothesis effectively depends on a data-dependent quantity. While the manuscript proposes a debiasing approach to address this issue, it would be helpful to more clearly explain how the inferential validity is preserved when the projection direction is estimated from the same dataset used for testing. In particular, a clearer explanation of the theoretical justification for the proposed correction would improve readability.
 \end{shaded}
+
+Thank you for the suggestion. We revised the writing in the Intuition of One-step Correction section extensively. The current version better stresses the source of the irregular distribution of the plug-in estimator. It explains how the influence function appears naturally when people use a linear function to approximate the problematic term, which further motivates the bias-correction scheme.
 
 \begin{shaded}
     3. Debiasing via double machine learning
