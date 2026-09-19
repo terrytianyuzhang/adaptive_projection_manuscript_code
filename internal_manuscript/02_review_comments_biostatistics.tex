@@ -140,19 +140,23 @@ We also expanded the discussion in section ``Debiased Tests for the Projected Nu
 The real-data analysis is interesting, but the statistical conclusions could be translated more clearly into biological insight. For example, beyond reporting p-values and overlap counts, it would be helpful to more explicitly connect what the significant PCs and anchored directions suggest about specific pathways or cell-type–specific processes, and to contrast these findings with those from standard marginal methods (e.g., what new insight do we gain by using projected tests rather than a list of gene-level p-values?).
 \end{shaded}
 
-Kathryn said:
+Thank you for the question, and it prompted us to think more carefully about the extra information it provides beyond single-gene level p-values.
 
-We used the GLMNB for the Lupus analysis because we were originally writing for statisticians and it seemed more familiar for them.  Now writing for Biostatistics I’m afraid we have to use one of the major packages for DE analysis.  DESeq2 is famous. Tim Barry has his SCEPTRE package. I think the latter is better, but prob’y we should use the former.  It is also customary to use FDR instead of Bonf.
+The tests based on PC modules treat highly correlated genes and their change between the groups as one unit. In this way, it points out that the transcriptional co-changes of certain genes are not accidental; they function as one group in the natural state and are expected to be impacted simultaneously under treatment or disease status. The anchored method also compares the predictive value across genes and selects the most discriminant ones. There may be many genes impacted by the treatment (and they are divided into correlation groups), and sparse classifiers typically select only a few from each group. It is more effective in pointing the researcher to the most major signal of the data set. The relevant interpretation discussion is revised in the ``Testing Results" section of the Lupus study.
 
-\textcolor{teal}{For comparisons, and biological insights, we have a good coverage PC4.    We need to make a stronger statement about what PC1 is identifying from a biological viewpoint.   Maybe AI could help us here.  If you are careful you can get some good citations.}   I see you do have good citations for a lot of your other claims.
+% Kathryn said:
 
-They say we didn’t compare our results to the standard analysis (currently GLMNBadj), but actually we did.    Once we replace this with a DE package, then we need to see what we gained and lost.  I guess we simply try to write things with more punch to make whatever message we have stronger -- having citations always makes the claims more impactful.  Currently, our better message might be with PC1, where these genes are not significant with multiple testing correction.
+% We used the GLMNB for the Lupus analysis because we were originally writing for statisticians and it seemed more familiar for them.  Now writing for Biostatistics I’m afraid we have to use one of the major packages for DE analysis.  DESeq2 is famous. Tim Barry has his SCEPTRE package. I think the latter is better, but prob’y we should use the former.  It is also customary to use FDR instead of Bonf.
 
-Again, I don’t know why they say we didn’t do biological interpretation b/c we did!  3 of the anchor genes are not predicted by other methods.  Is there anything we can say about why (statistically) they come up with this analysis and none of the other approaches? 
+% \textcolor{teal}{For comparisons, and biological insights, we have a good coverage PC4.    We need to make a stronger statement about what PC1 is identifying from a biological viewpoint.   Maybe AI could help us here.  If you are careful you can get some good citations.}   I see you do have good citations for a lot of your other claims.
 
-\textcolor{teal}{Genes in a module are correlated.}
+% They say we didn’t compare our results to the standard analysis (currently GLMNBadj), but actually we did.    Once we replace this with a DE package, then we need to see what we gained and lost.  I guess we simply try to write things with more punch to make whatever message we have stronger -- having citations always makes the claims more impactful.  Currently, our better message might be with PC1, where these genes are not significant with multiple testing correction.
 
-\textcolor{teal}{PC1 contrasts GLM NB ADJ, it has more positive.}
+% Again, I don’t know why they say we didn’t do biological interpretation b/c we did!  3 of the anchor genes are not predicted by other methods.  Is there anything we can say about why (statistically) they come up with this analysis and none of the other approaches? 
+
+% \textcolor{teal}{Genes in a module are correlated.}
+
+% \textcolor{teal}{PC1 contrasts GLM NB ADJ, it has more positive.}
 
 \begin{shaded}
 7. Justification of pseudo-bulk and normalization choices.
