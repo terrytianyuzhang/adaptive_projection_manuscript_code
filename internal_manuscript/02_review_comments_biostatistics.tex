@@ -131,7 +131,7 @@ We also conducted a set of simulations with a different strategy for PC estimati
 The simulations nicely demonstrate type-I error and power for a specific zero-inflated Gaussian block-correlation structure. Given the broad applicability of the method, I wonder if the authors could (or at least briefly discuss): i) additional covariance structures (e.g., more diffuse correlations or non-block patterns); ii)heavier-tailed distributions or different sparsity levels in the mean shift; iii) more extreme sample-size imbalance between groups. iv) Even a short summary in the Supplement (with pointers in the main text) would reassure readers about robustness.
 \end{shaded}
 
-To verify the robustness of the proposal, a set of supplementary simulations was added to the appendix section ``Simulation Under Unstructured Sparse Correlation". This study aims to provide more variety in the simulation setting and method details. Specifically: 1) We considered unstructured covariance matrices. They do not have block correlation; rather, they are sparse in a nicer but natural fashion that permits effective estimation (row-sparse). 2) As a result, the true leading PC vectors are not sparsely supported. But it is still possible to estimate them because the covariance matrix has tamed structure and enough eigen-gaps. 3) We applied hard-thresholding to estimate the sparse covariance matrix first and then compute the eigen systems. This strategy is supported by rigorous literature work (see detailed discussion in the appendix) and cooperates well with the proposed framework.
+To verify the robustness of the proposal, a set of supplementary simulations was added to the appendix section ``Simulation Under Unstructured Sparse Correlation". This study aims to provide more variety in the simulation setting and method details. Specifically: 1) We considered unstructured covariance matrices. They do not have block correlation; rather, they are row-sparse that permits effective estimation. 2) As a result, the true leading PC vectors are not sparsely supported. But it is still possible to estimate them because the covariance matrix has a tamed structure and enough eigen-gaps. 3) We applied hard-thresholding to estimate the sparse covariance matrix first and then compute the eigen systems. This strategy is supported by rigorous literature work (see detailed discussion in the appendix) and cooperates well with the proposed framework.
 
 We also expanded the discussion in section ``Debiased Tests for the Projected Null" to address the other comments. We added a short note on near-sparse means estimation---they may have full supports but not too many entries can have large values. Estimating a high-dimensional mean without constraints in general is very challenging when the errors are measured in $\|\cdot\|_2$-norm. Sparse covariance matrix estimation is also possible using robust thresholding estimators: these methods typically only requires the distributions have entry-wise forth-moments, instead of the light-tail assumptions that require all moments.
 
@@ -215,17 +215,21 @@ It would be helpful to clarify: 1. what the nuisance parameter is in this framew
 Since DML-based inference relies on Neyman orthogonality and certain rate conditions for nuisance estimation, it would be useful to explicitly state the assumptions under which the proposed procedure is theoretically valid.
 \end{shaded}
 
-We agree with you that the debiasing framework needs non-trivial conditions on the nuisance estimation.
+There are several quantities needed to be estimated from the left-out sample to perform the debiasing step. We managed to show, which is also one of the theoretical contributions, that all of them can be reduced to two items: the gene-gene covariance matrix $\Sigma$ and the mean expression level vector $\mu_X, \mu_Z$. This information is stated in the main theorem in section ``Debiased Tests for the Projected Null".
 
-We added a paragraph to clarify how the cross-fitting is conducted to address point 2 you mentioned. {\tz need to add this}
+To clarify how the cross-fitting works, we included a self-contained description of the sample splitting strategy in the appendix section ``More Details on the Debiased Test", as you suggested in a later comment.
 
-We added a remark after the main double machine learning theorem to explicitly identify the nuisance parameters and convergence rate requirements. {\tz need to add this}.
+The assumptions needed to guarantee normality are stated/cited in the main theorem as well. We also expanded the discussion afterwards to include more methods and settings when these assumptions (essentially the $o_P(n^{-1/4})$ convergence rate) are satisfied. Now it discusses near-sparse true mean vectors as well as distributions with heavier tails.
 
 \begin{shaded}
     4. Robustness of projection-based testing
 
 Projection-based tests are generally most powerful when signals align with a small number of directions. It would be helpful if the authors could discuss how the proposed method performs when signals are distributed across many weak directions rather than concentrated in a sparse subspace. In addition, since the projection direction is estimated using PCA, the method implicitly assumes that the signal structure is reflected in the covariance structure. It would be useful to discuss how sensitive the method is to situations where mean differences occur in directions that are not strongly represented in the covariance eigenstructure.
 \end{shaded}
+
+When the signal is very much spread out or perfectly orthogonal to the space spanned by the leading eigenvectors, the proposed method should not be as powerful. Similar to many other methods reviewed in \cite{huang2022overview},  each high-dimensional comparison method has its own favorable scenarios and those it has more trouble with. This is also an expected feature of this proposal: when there is no signal aligned with $v_j$, it should not reject $(\mu_X - \mu_Z)^\top v_j = 0$. 
+
+Beyond power considerations, controlling type-I error is an equally important goal when the signal is orthogonal to the PC directions. The plug-in test is appealing but cannot achieve this because it omits the variability in the estimated PC, and debiased testing can be a systematic solution. If one is not careful with the tools applied, the rejection rate may be much inflated even when the signal is perpendicular to the PC direction. 
 
 
 \begin{shaded}
@@ -235,6 +239,10 @@ The simulation study appears somewhat aligned with the structure of the proposed
 
 Because the proposed method relies on identifying such directions, this design may favor projection-based tests. It would strengthen the empirical evaluation to include additional scenarios where: 1. the signal is not aligned with the leading principal component. 2. the signal is distributed across multiple directions. 3.the covariance structure is less structured.
 \end{shaded}
+
+In the appendix section ``Simulation Under Unstructured Sparse Correlation", we added some new simulation settings where the covariance matrix is less structured (but satisfies row-wise sparsity so that it is estimable). We observe that the debiased test controls the type-I error well and establishes increasing power when more samples are available.
+
+We also highlight that when the signal is not aligned with the leading PC, as shown in the ``Projective Null" column, the proposed method is not expected to have a rejection rate $>5\%$. This is the null hypothesis. It is interestingly non-trivial to construct a method that can control type-I error under the projective null (in which the plug-in proposal failed).
 
 \begin{shaded}
     6. Real data analysis
@@ -271,14 +279,14 @@ Page 6, Algorithm description.
 It would be helpful to include a concise algorithmic summary describing the full testing pipeline, including projection estimation, sample splitting, debiasing, and p-value calculation.
 \end{shaded}
 
+Thank you for the suggestion. The manuscript provides a self-contained description for the pipeline in the renamed appendix section ``More Details on the Debiased Test".
+
 \begin{shaded}
 Page 8, Simulation dimensionality.
 The simulations consider p = 100 variables. Many genomic datasets involve thousands of genes. Evaluating performance in larger dimensional settings would strengthen the empirical study.
 \end{shaded}
 
-We appreciate the suggestions. The intention of Figure 2 on this page is to show that even under mild dimensionality, the projective null does not induce normal statistics. The main simulation is conducted under a larger $p = 1000$.
-
-{\tz We include extra experiment that ....}
+We appreciate the suggestions. The intention of Figure 2 on this page is to show that even under mild dimensionality, the projective null does not induce normal statistics. The more extended simulations (including the original main simulation and the new supplementary ones) are conducted under a larger $p = 1000$. Many single-cell expression profiles measure many more genes, and we recommend trimming the list to those with the highest expression level or expression variability, 
 
 \begin{shaded}
 Supplementary Materials, Section A.
@@ -289,7 +297,7 @@ $$
 which ensures that the leading principal component corresponds to the signal direction. This design may favor projection-based tests. Additional simulation scenarios with more general covariance structures would help evaluate robustness.  
 \end{shaded}
 
-{\tz This is related to R1Q5}
+To verify the robustness of the proposal, a set of supplementary simulations was added to the appendix section ``Simulation Under Unstructured Sparse Correlation". In this study, we considered unstructured covariance matrices, which can be more general than the spike models. We also considered a different pipeline for estimating the covariance matrix and computing its PCs. The proposed pipeline still functions as expected even when many details are altered.
 
 \bibliography{main}
 \bibliographystyle{plain}

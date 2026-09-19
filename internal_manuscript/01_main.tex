@@ -692,7 +692,9 @@ Note that we normalized $v_1$ such that $\|v_1\| = 1$.
 
 For this, we implement standard PCA to estimate $v_1$. We are aware that standard PCA is not a consistent estimator of $v_1$ in the high-dimensional setting but still stick to this choice because standard PCA is still routinely applied in high-dimensional biomedical research. Statistically, it is not the best practice but in this specific simulation, the estimation quality is satisfactory. Results do not significantly change after switching to sPCA.
 
-\section{Explicit Formulas for the Debiased Test}\label{app: explicit formula}
+\section{More Details on the Debiased Test}
+
+\subsection{Explicit formula}\label{app: explicit formula}
 
 We omitted to present the explicit formula of several quantities for constructing $T_{\rm 1s}$ in the main text to save some space. We present them in this section.
 
@@ -721,6 +723,107 @@ where
         V_Z^{(-m)}(Z)& =\left(Z-\mu_Z^{(-m)}\right)^{\top} v_1^{(-m)}-(1-w) \phi_Z^{(-m)}(Z)
     \end{aligned}
 \end{equation*}
+
+\begin{revblock}
+\subsection{A Self-contained Description of the Debiased Test Pipeline}
+
+\noindent
+Input: samples $\{X_i\}_{i=1}^{N_X}$ and $\{Z_i\}_{i=1}^{N_Z}$,
+number of folds $M$, and significance level $\alpha$.
+
+\begin{enumerate}
+\item Randomly partition each group into $M$ equal-sized folds,
+with $n_X=N_X/M$ and $n_Z=N_Z/M$ observations per fold.
+Let $\mathcal D^{(m)}$ denote fold $m$ and
+$\mathcal D^{(-m)}=\mathcal D\setminus\mathcal D^{(m)}$.
+
+\item For each $m=1,\ldots,M$:
+\begin{enumerate}
+\item Using only $\mathcal D^{(-m)}$, estimate
+$\mu_X^{(-m)}$, $\mu_Z^{(-m)}$, and $\Sigma^{(-m)}$,
+and obtain the leading sparse PC $v_1^{(-m)}$ and
+eigenvalue estimate $\lambda_1^{(-m)}$. Use a common sign convention for the PC estimates.
+
+\item Compute
+\[
+s^{(-m)}
+=
+\left(\lambda_1^{(-m)}I_p-\Sigma^{(-m)}\right)^+
+\left(\mu_X^{(-m)}-\mu_Z^{(-m)}\right).
+\]
+For $G\in\{X,Z\}$, define
+\[
+\phi_G^{(-m)}(g)
+=
+s^{(-m)\top}
+\left[
+(g-\mu_G^{(-m)})(g-\mu_G^{(-m)})^\top
+-\Sigma^{(-m)}
+\right]v_1^{(-m)}.
+\]
+
+\item Using the held-out fold $\mathcal D^{(m)}$, compute
+the sample means $\mu_X^{(m)}$ and $\mu_Z^{(m)}$ and
+the corrected projected difference
+\[
+\hat\theta_{\rm 1s}^{(m)}
+=
+\left(\mu_X^{(m)}-\mu_Z^{(m)}\right)^\top v_1^{(-m)}
++
+\frac{
+\sum_{X_i\in\mathcal D^{(m)}}\phi_X^{(-m)}(X_i)
++
+\sum_{Z_i\in\mathcal D^{(m)}}\phi_Z^{(-m)}(Z_i)
+}{n_X+n_Z}.
+\]
+
+\item Set $w=n_X/(n_X+n_Z)$ and compute the held-out scores
+\[
+\begin{aligned}
+V_X^{(-m)}(X_i)
+&=(X_i-\mu_X^{(-m)})^\top v_1^{(-m)}
++w\phi_X^{(-m)}(X_i),\\
+V_Z^{(-m)}(Z_i)
+&=(Z_i-\mu_Z^{(-m)})^\top v_1^{(-m)}
+-(1-w)\phi_Z^{(-m)}(Z_i).
+\end{aligned}
+\]
+Let $\bar V_G^{(m)}$ be the average score for group $G$
+in fold $m$, and calculate
+\[
+\hat q_G^{(m)}
+=
+\frac{1}{n_G}
+\sum_{G_i\in\mathcal D^{(m)}}
+\left(V_G^{(-m)}(G_i)-\bar V_G^{(m)}\right)^2,
+\qquad G\in\{X,Z\}.
+\]
+\end{enumerate}
+
+\item Aggregate the fold estimates:
+\begin{equation*}
+    T_{\rm 1s}
+ =
+\frac{\sum_{m=1}^M\hat\theta_{\rm 1s}^{(m)}}
+{\hat\sigma_{\rm 1s}} 
+\end{equation*}
+where
+\begin{equation*}
+        \hat\sigma_{\rm 1s}^2
+ =
+\sum_{m=1}^M
+\left(\frac{\hat q_X^{(m)}}{n_X}
++\frac{\hat q_Z^{(m)}}{n_Z}\right)
+\end{equation*}
+
+\item Return the two-sided $p$-value
+\[
+p_{\rm 1s}=2\left\{1-\Phi\left(|T_{\rm 1s}|\right)\right\},
+\]
+where $\Phi$ is the standard normal distribution function.
+Reject $H_0^{\rm proj}(v_1)$ if $p_{\rm 1s}<\alpha$.
+\end{enumerate}
+\end{revblock}
 
 \section{Proof of Theorem \ref{th: one step}}
 \label{app: debiased stat}
