@@ -118,7 +118,7 @@ In \Cref{section: debiased}, we investigated the sPCA projection. We identify an
 \end{revblock}
 
 \begin{revblock}
-In \Cref{section: app orthogonality}, we discuss an alternative strategy to achieve asymptotically Gaussian test statistics, potentially incorporating supervised linear classifiers to enhance testing power. Under the global null---when the two high-dimensional means are identical---debiasing is not necessary to achieve asymptotic normality. We generalize this benefit from cross-fitting and provide a sufficient condition called \emph{approximate orthogonality}. The resulting method, called the \emph{anchored projection test}, can avoid loss of power when the mean difference is not well-aligned with the sparse PC, and the degeneracy of the classifier when different is absent (which frequently arises in two-sample testing problems involving nuisance parameters \citep{liu2022multiple, williamson2023general, dai2022significance, lundborg2022projected}). This framework allows general high-dimensional sparsity-inducing algorithms, including lasso and group lasso, to enhance testing power. In our real-data analysis example, we illustrate how this flexibility allows researchers to incorporate gene clustering information and achieve better interpretability.
+In \Cref{section: app orthogonality}, we discuss an alternative strategy to achieve asymptotically Gaussian test statistics, potentially incorporating supervised linear classifiers to enhance testing power. Under the global null---when the two high-dimensional means are identical---debiasing is not necessary to achieve asymptotic normality. We generalize this benefit from cross-fitting and provide a sufficient condition called \emph{approximate orthogonality}. The resulting method, called the \emph{anchored projection test}, can avoid loss of power when the mean difference is not well-aligned with the sparse PC, and the degeneracy of the classifier when the difference is absent (which frequently arises in two-sample testing problems involving nuisance parameters \citep{liu2022multiple, williamson2023general, dai2022significance, lundborg2022projected}). This framework allows general high-dimensional sparsity-inducing algorithms, including lasso and group lasso, to enhance testing power. In our real-data analysis example, we illustrate how this flexibility allows researchers to incorporate gene clustering information and achieve better interpretability.
 \end{revblock}
 
 
@@ -230,7 +230,7 @@ One may attempt to use the following steps to characterize the asymptotic behavi
       \gamma_{\rm pi}^{(-m)} - \gamma =  (\mu_X^{(m)} - \mu_X)^\top v_1 +  (\mu_X^{(m)} - \mu_X)^\top(v_1^{(-m)} - v_1)+ \mu_X^\top (v_1^{(-m)} - v_1).
 \end{equation}
 The first term in the RHS of \Cref{eq: example decomposition} converges to a normal distribution after proper normalization, which we will refer to as the CLT term. The second term is often of a higher order than the CLT term because it is a product of two terms both shrinking to zero.
-The third term usually prevents $\gamma_{\rm pi}^{(-m)}$ from establishing a Gaussian distribution in high-dimensional settings. It corresponds to the bias due to using the estimated $v_1^{(m)}$. When the dimension of $X$ is large, $v_1^{(-m)}$ often converges to $v_1$ at a slower rate than the CLT term, and its irregular distribution---possibly due to the induced sparsity---dominates the CLT term.  
+The third term usually prevents $\gamma_{\rm pi}^{(-m)}$ from establishing a Gaussian distribution in high-dimensional settings. It corresponds to the bias due to using the estimated $v_1^{(-m)}$. When the dimension of $X$ is large, $v_1^{(-m)}$ often converges to $v_1$ at a slower rate than the CLT term, and its irregular distribution---possibly due to the induced sparsity---dominates the CLT term.  
 
 A closer examination of this problematic term enlightens a solution. For a fixed $\mu_X$, we can treat $\mu_X^\top v_1^{(-m)}$ as a mapping from the distribution associated with $\mathcal{D}^{(-m)}$, denoted as $P_n^{(-m)}$, to a number. So the third term in \eqref{eq: example decomposition} can be rewritten as
 \begin{equation*}
@@ -571,7 +571,7 @@ The number of active genes for each of the PC1-PC4 is approximately $20$ (\Cref{
 \begin{revblock}
     
 
-The PC4 support genes possess a more interpretable pattern. Its active genes include IFI27, IFI44L, IFI6, IFIT3, ISG15, and MX1. As their name suggest (the ``IFI" prefix stands for "InterFeron-Inducible"), SLE cases and healthy controls differ significantly in the interferon-related pathway. Of the 19 PC4 support genes, eight are also identified as differentially expressed by the multiplicity-adjusted single-gene tests. Although the two analysis thus provide complementary descriptions of the same signal, the proposed framework also offers evidence that these eight gene-level findings are not isolated or accidental. Their expression levels are correlated, and their between-group differences can be interpreted jointly as one unit. (Further information regarding PC4 genes are provided in \Cref{appfig: inspect PC4}.)
+The PC4 support genes possess a more interpretable pattern. Its active genes include IFI27, IFI44L, IFI6, IFIT3, ISG15, and MX1. As their names suggest (the ``IFI" prefix stands for "InterFeron-Inducible"), SLE cases and healthy controls differ significantly in the interferon-related pathway. Of the 19 PC4 support genes, eight are also identified as differentially expressed by the multiplicity-adjusted single-gene tests. Although the two analyses thus provide complementary descriptions of the same signal, the proposed framework also offers evidence that these eight gene-level findings are not isolated or accidental. Their expression levels are correlated, and their between-group differences can be interpreted jointly as one unit. (Further information regarding the PC4 genes is provided in \Cref{appfig: inspect PC4}.)
 
 \end{revblock}
 
@@ -631,7 +631,7 @@ For the perturbation ADO, the majority of the discriminative power (of the group
 We also observe overlap in the projective structure between certain perturbations. Notably, the projective directions for CEBPG, STK11, KIDINS220, and TLR1 are all concentrated within module 37, implying potential functional similarity. Likewise, AHR, STAT1, IFNAR1, STAT2, and TYK2 induce a common impact on modules 31 and 42.
 
 \begin{revblock}
-Gene Ontology is a framework facilitating gene function description. A GO enrichment analysis provides p-values that quantify how much genes in a specific biological functional category are overrepresented in a set of genes, compared to what would be expected by chance. A small p-value for a pathway X should be interpreted as ``gene module contains many genes in pathway X than what would happen randomly". In \Cref{fig: cleary_loading_concentration}B, we present the GO enrichment results for selected gene modules. The modules are primarily enriched in pathways related to immune response and cell signaling. Notably, the functional annotations of Module 15 are almost a subset of those of Module 37. The pathways enriched in Module 31 show less overlap with those in Modules 15 and 37. 
+Gene Ontology is a framework facilitating gene function description. A GO enrichment analysis provides p-values that quantify how much genes in a specific biological functional category are overrepresented in a set of genes, compared to what would be expected by chance. A small p-value for a pathway X should be interpreted as ``the gene module contains more genes from pathway X than would be expected by chance". In \Cref{fig: cleary_loading_concentration}B, we present the GO enrichment results for selected gene modules. The modules are primarily enriched in pathways related to immune response and cell signaling. Notably, the functional annotations of Module 15 are almost a subset of those of Module 37. The pathways enriched in Module 31 show less overlap with those in Modules 15 and 37. 
 
 The differential expression results well replicate some of the known functional similarity. For example, STAT1, STAT2 and TYK2 are all part of the JAK/STAT signaling pathway \citep{rawlings2004jak, hu2021jak} and they selectively impact gene module 31. TYK2 participates in phosphorylating the membrane cytokine-receptor upon ligand binding. STAT1 and STAT2 then dock at these sites, are phosphorylated by JAKs, and activate further downstream gene expression. All three genes, as well as IFNAR1, are well known for their central roles in the type I interferon signaling pathway \citep{velazquez1992protein,qureshi1995tyrosine,prchal2012tyk2}.
 
@@ -1799,7 +1799,7 @@ The simulation data in \Cref{section: simulation} is generated under spike model
 \subsection{Unstructured Covariance Matrix}
 We considered two settings where $p\in\{100,1000\}$. The covariance matrix was determined as follows: We first created a symmetric matrix $A$
 with zero diagonal elements. We then selected $4p$ unordered off-diagonal pairs $\{i,j\}$ uniformly at
-random and assigned each selected $A_{ij} = A_{ji}$ a common random value. After obtaning $A$, the population covariance matrix was
+random and assigned each selected $A_{ij} = A_{ji}$ a common random value. After obtaining $A$, the population covariance matrix was
 \[
 \Sigma=I_p+0.9\frac{A}{\lVert A\rVert_{\rm op}}.
 \]
@@ -1815,7 +1815,7 @@ $v_1$. We constructed a unit vector $\delta_\perp$, supported on $S$, by
 pairing these coordinates and swapping their $v_1$ loadings with alternating
 signs. This construction gives $\delta_\perp^\top v_1=0$. Under the projected
 null, the population mean difference was $5\delta_\perp$ for both dimensions.
-Consequently, the $\mu_X \neq \mu_Z$ substantially while
+Consequently, $\mu_X$ and $\mu_Z$ differ substantially while
 still satisfying
 \[
 (\mu_X-\mu_Z)^\top v_1=0.
@@ -1834,7 +1834,7 @@ where $v_{1,S}$ agrees with $v_1$ on $S$ and is zero elsewhere. We used a larger
 
 \subsection{Implementation of the Plug-in and Debiased Methods}
 
-We implemented both methods using five-fold cross-fitting. When estimating the covariance matrix, we first compute the simple sample covariance matrix pooling both control and treatment samples. Afterwards, we obtain the hard-thresholded estimator $\Sigma^{(-m)}$ by truncating off-diagonal elements smaller than $\sim \sqrt{\log p / (N_Z + N_Z)}$ to zero. The other nuisance including $\widehat{\lambda}_1^{(-m)} \text { and } \widehat{v}_1^{(-m)}$ are directly computed using the matrix estimator. Under the row-wise sparsity and eigen-gap, the theoretical estimation errors of the nuisance are of order $\sqrt{\log p / (N_X + N_Z)}$, smaller than the requirement in \Cref{th: one step}.
+We implemented both methods using five-fold cross-fitting. When estimating the covariance matrix, we first compute the simple sample covariance matrix pooling both control and treatment samples. Afterwards, we obtain the hard-thresholded estimator $\Sigma^{(-m)}$ by truncating off-diagonal elements smaller than $\sim \sqrt{\log p / (N_X + N_Z)}$ to zero. The other nuisance including $\widehat{\lambda}_1^{(-m)}$ and $\widehat{v}_1^{(-m)}$ are directly computed using the matrix estimator. Under the row-wise sparsity and eigen-gap, the theoretical estimation errors of the nuisance are of order $\sqrt{\log p / (N_X + N_Z)}$, smaller than the requirement in \Cref{th: one step}.
 
 \begin{figure}[!tbp]
     \centering

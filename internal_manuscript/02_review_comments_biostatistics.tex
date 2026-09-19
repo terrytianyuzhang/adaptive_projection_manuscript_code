@@ -133,7 +133,7 @@ The simulations nicely demonstrate type-I error and power for a specific zero-in
 
 To verify the robustness of the proposal, a set of supplementary simulations was added to the appendix section ``Simulation Under Unstructured Sparse Correlation". This study aims to provide more variety in the simulation setting and method details. Specifically: 1) We considered unstructured covariance matrices. They do not have block correlation; rather, they are row-sparse that permits effective estimation. 2) As a result, the true leading PC vectors are not sparsely supported. But it is still possible to estimate them because the covariance matrix has a tamed structure and enough eigen-gaps. 3) We applied hard-thresholding to estimate the sparse covariance matrix first and then compute the eigen systems. This strategy is supported by rigorous literature work (see detailed discussion in the appendix) and cooperates well with the proposed framework.
 
-We also expanded the discussion in section ``Debiased Tests for the Projected Null" to address the other comments. We added a short note on near-sparse means estimation---they may have full supports but not too many entries can have large values. Estimating a high-dimensional mean without constraints in general is very challenging when the errors are measured in $\|\cdot\|_2$-norm. Sparse covariance matrix estimation is also possible using robust thresholding estimators: these methods typically only requires the distributions have entry-wise forth-moments, instead of the light-tail assumptions that require all moments.
+We also expanded the discussion in section ``Debiased Tests for the Projected Null" to address the other comments. We added a short note on near-sparse means estimation---they may have full supports but not too many entries can have large values. Estimating a high-dimensional mean without constraints in general is very challenging when the errors are measured in $\|\cdot\|_2$-norm. Sparse covariance matrix estimation is also possible using robust thresholding estimators: these methods typically require only finite entrywise fourth moments, instead of the light-tail assumptions that require all moments.
 
 \begin{shaded}
 6. Interpretation of the lupus application results.
@@ -294,7 +294,7 @@ Page 8, Simulation dimensionality.
 The simulations consider p = 100 variables. Many genomic datasets involve thousands of genes. Evaluating performance in larger dimensional settings would strengthen the empirical study.
 \end{shaded}
 
-We appreciate the suggestions. The intention of Figure 2 on this page is to show that even under mild dimensionality, the projective null does not induce normal statistics. The more extended simulations (including the original main simulation and the new supplementary ones) are conducted under a larger $p = 1000$. Many single-cell expression profiles measure many more genes, and we recommend trimming the list to those with the highest expression level or expression variability, 
+We appreciate the suggestions. The intention of Figure 2 on this page is to show that even under mild dimensionality, the projective null does not induce normal statistics. The more extended simulations (including the original main simulation and the new supplementary ones) are conducted under a larger $p = 1000$. Many single-cell expression profiles measure many more genes, and we recommend trimming the list to those with the highest expression level or expression variability. 
 
 \begin{shaded}
 Supplementary Materials, Section A.
