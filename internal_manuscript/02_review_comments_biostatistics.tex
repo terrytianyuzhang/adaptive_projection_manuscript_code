@@ -140,9 +140,9 @@ We also expanded the discussion in section ``Debiased Tests for the Projected Nu
 The real-data analysis is interesting, but the statistical conclusions could be translated more clearly into biological insight. For example, beyond reporting p-values and overlap counts, it would be helpful to more explicitly connect what the significant PCs and anchored directions suggest about specific pathways or cell-type–specific processes, and to contrast these findings with those from standard marginal methods (e.g., what new insight do we gain by using projected tests rather than a list of gene-level p-values?).
 \end{shaded}
 
-Thank you for the question, and it prompted us to think more carefully about the extra information it provides beyond single-gene level p-values.
+Thank you for the question. It prompted us to think more carefully about the extra information it provides beyond single-gene level p-values.
 
-The tests based on PC modules treat highly correlated genes and their change between the groups as one unit. In this way, it points out that the transcriptional co-changes of certain genes are not accidental; they function as one group in the natural state and are expected to be impacted simultaneously under treatment or disease status. The anchored method also compares the predictive value across genes and selects the most discriminant ones. There may be many genes impacted by the treatment (and they are divided into correlation groups), and sparse classifiers typically select only a few from each group. It is more effective in pointing the researcher to the most major signal of the data set. The relevant interpretation discussion is revised in the ``Testing Results" section of the Lupus study.
+We think the most notable distinction is that the PC module tests treat highly correlated genes and their change between the groups as one unit. In this way, it points out that the transcriptional co-changes of certain genes are not accidental; they function as one group in the natural state and are expected to be impacted simultaneously under treatment or disease status. The anchored method also compares the predictive value across genes and selects the most discriminating ones. There may be many genes impacted by the treatment (and they are divided into correlation groups), and sparse classifiers typically select only a few from each group. This approach can therefore direct researchers to the major signals in the data set. The relevant interpretation discussion is revised in the ``Testing Results" section of the Lupus study.
 
 % Kathryn said:
 
@@ -253,6 +253,10 @@ We also highlight that when the signal is not aligned with the leading PC, as sh
 
 The real data example illustrates the application of the proposed method but could be strengthened by comparing the results with standard differential expression approaches commonly used in single-cell RNA-seq analysis. Providing some biological interpretation of the identified gene sets would also help demonstrate the practical utility of the method.
 \end{shaded}
+
+Thank you for the question. It prompted us to think more carefully about the extra information it provides beyond single-gene level DEs.
+
+We think the most notable distinction is that the PC module tests treat highly correlated genes and their change between the groups as one unit. In this way, it points out that the transcriptional co-changes of certain genes are not accidental; they function as one group in the natural state and are expected to be impacted simultaneously under treatment or disease status. The anchored method also compares the predictive value across genes and selects the most discriminating ones. There may be many genes impacted by the treatment (and they are divided into correlation groups), and sparse classifiers typically select only a few from each group. This approach can therefore direct researchers to the major signals in the data set. The relevant interpretation discussion is revised in the ``Testing Results" section of the Lupus study.
 
 \begin{shaded}
 Minor Comments
