@@ -16,7 +16,6 @@ This repository contains the code used in the paper titled **"Adaptive Projected
     └── try_Cleary_data/               # Preprocessed data for Perturb-seq analysis [1]
 ```
 
-The current `Biostatistics_revision/` workflow uses `code/001_find_sparse_covariance_matrix.R` to generate covariance matrices, `code/035_run_complete_mean_comparison_pipeline.sh` to run the simulation (scripts `031–034`), and scripts `036–037` to generate plots. Run these from `code_submitted/Biostatistics_revision/code/`.
 
 ## References
 
