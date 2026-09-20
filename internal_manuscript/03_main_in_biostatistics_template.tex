@@ -48,6 +48,14 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
+\newenvironment{revblock}
+  {\color{teal}}
+  {}
+
+  \newenvironment{revblock2}
+  {\color{olive}}
+  {}
+  
 \begin{document}
 
 \title{Adaptive Projected Two-Sample Comparisons \\for Single-Cell Gene Expression Data
@@ -88,7 +96,7 @@ We study high-dimensional two-sample mean comparison and address the curse of di
 
 \section{Introduction}\label{section: intro}
 
-Comparing the mean vectors of two high-dimensional random vectors is a canonical statistical problem with applications in science, engineering, and business. The problem traces back to its low-dimensional counterpart, notably Hotelling's $T^2$ \citep{hotellings}. The high-dimensional version has been extensively studied in the statistical literature, and various methods have been proposed under differing signal structures: see \cite{huang2022overview} for a recent review and extensive numerical comparisons.
+Comparing the mean vectors of two high-dimensional random vectors is a canonical statistical problem with applications in science, engineering, and business. The problem traces back to its low-dimensional counterpart, notably Hotelling's $T^2$ \citep{hotellings}. The high-dimensional version has been extensively studied in the statistical literature, and various methods have been proposed under differing signal structures.
 
 % The high-dimensional two-sample mean comparison problem has been extensively studied in the statistical literature. See, for example, \cite{bai1996effect, chen2010two, tony2014two}. Various methods have been proposed under differing assumptions on the underlying signal structure: see \cite{huang2022overview} for a recent review and extensive numerical comparisons.
 
@@ -116,27 +124,20 @@ As an example, we present the principal component (PC) gene clusters from a lupu
 
 Because the PC directions---as well as all data-driven correlation exploring methods---are estimated from the same data for mean comparison, their estimation variability must be properly accounted for. We analyzed two directions to enhance naive projection tests and investigated the conditions under which a statistically principled framework can be established.
 
-% A primary goal of this work is to provide a statistically principled framework to answer this question.
+\begin{revblock}
+In \Cref{section: debiased}, we investigated the sPCA projection. We identify and implement the semiparametric one-step mean estimator to remove potential bias in the sparse PC projection estimate \citep{bickel1993efficient,cher2018doubleml,kennedy2022semiparametric,hines2022demystifying}. To implement this general work, a case-by-case study is required for each application: to our knowledge, this is the first one-step estimator using the sparse PC as a nuisance parameter. The derivation of the influence function of the statistic and the proof of asymptotic negligibility of the first-order bias are both novel and technically nontrivial. We also delineated that many intermediate nuisance quantity estimations can be reduced to mean and covariance estimation, which are more standard topics in modern statistics. The most canonical structure we considered is spiked covariance matrices \cite{johnstone2001distribution, cai2015optimal}, which are most relevant to genomic applications. However, the established theoretical result is general and applicable to other true covariance structures so long as effective estimation is possible \cite{fan2016overview,cai2016review}.
+\end{revblock}
 
-% To avoid the double-dipping issue caused by using the same data for both projection estimation and mean testing, we develop a semiparametric one-step estimator to remove the potential bias carried by the estimated projection direction. In case the mean difference is not well-aligned with the estimated projection direction, we further develop an ``anchored projection'' that enjoys both statistical validity under the null and improved power under the alternative.
+\begin{revblock}
+In \Cref{section: app orthogonality}, we discuss an alternative strategy to achieve asymptotically Gaussian test statistics, potentially incorporating supervised linear classifiers to enhance testing power. Under the global null---when the two high-dimensional means are identical---debiasing is not necessary to achieve asymptotic normality. We generalize this benefit from cross-fitting and provide a sufficient condition called \emph{approximate orthogonality}. The resulting method, called the \emph{anchored projection test}, can avoid loss of power when the mean difference is not well-aligned with the sparse PC, and the degeneracy of the classifier when the difference is absent (which frequently arises in two-sample testing problems involving nuisance parameters \citep{liu2022multiple, williamson2023general, dai2022significance, lundborg2022projected}). This framework allows general high-dimensional sparsity-inducing algorithms, including lasso and group lasso, to enhance testing power. In our real-data analysis example, we illustrate how this flexibility allows researchers to incorporate gene clustering information and achieve better interpretability.
+\end{revblock}
 
-In \Cref{section: debiased}, we investigated the sPCA projection. We identify and implement the semiparametric one-step mean estimator to remove potential bias in the sparse PC projection estimate \citep{bickel1993efficient,cher2018doubleml,kennedy2022semiparametric,hines2022demystifying}.  To our knowledge, this is the first one-step estimator using the sparse PC as a nuisance parameter. The derivation of the corresponding influence function and the proof of asymptotic negligibility of the first-order bias are both novel and technically nontrivial.
-
-In \Cref{section: app orthogonality}, we discuss an alternative strategy to achieve asymptotically Gaussian test statistics, potentially incorporating supervised linear classifiers to enhance testing power. Under the global null---when the two high-dimensional means are identical---debiasing is not necessary to achieve asymptotic normality. We generalize this phenomenon and provide a sufficient condition called \emph{approximate orthogonality}. 
-% This framework allows the implementation of black-box correlation discovery algorithms and/or supervised classifiers.
-The resulting method, called the \emph{anchored projection test}, can avoid loss of power when the mean difference is not well-aligned with the sparse PC, and the degeneracy of the classifier when different is absent (which frequently arises in two-sample testing problems involving nuisance parameters \citep{liu2022multiple, williamson2023general, dai2022significance, lundborg2022projected}).
 
 We demonstrate the effectiveness of our methods via simulation studies (\Cref{section: simulation}) and two single-cell genomic studies: a case-control study \citep{perez2022single} of Lupus disease using T4 immune cells (\Cref{section: real data}); and a Perturb-seq \citep{yao2024scalable} study investigating the effect of knockouts of immune genes on human macrophage cell lines (\Cref{section: clearys data}). These applications highlight the potential of our methods to advance our understanding of complex disease mechanisms and immune responses.  
 
-% Explicitly relating the mean difference and correlation structure reflects the consensus that gene expressions in a cell are co-regulated. Correlated gene expression patterns often identify sparse sets of genes that control key biological systems, such as coordinated transcriptional regulation \citep{Lucas:2010, Stein-OBrien:2018}.
-% % For example, a transcription factor may regulate a set of genes sharing common features (motifs), thereby establishing a regulatory network \citep{Carvalho:2008}. 
-% \citet{Knowles:2011} argued that statistically derived factors---such as PCs---frequently capture coordinated biological activity that can be usefully modeled. 
-% % In a related direction, a collection of methods termed \textit{contrastive dimension reduction} \cite{zou2013contrastive, abid2018exploring, jones2022contrastive} have been developed to identify systematic differences in covariance matrices between groups of genes. 
-% In the mean inference literature, a recent work \cite{zhou2023new} develops a Bayesian method under a low-dimensional sparse factor model and demonstrates its ability to localize subsets of genes driving group differences. 
-
-% To establish approximately normal test statistics, we implement a semiparametric one-step procedure \citep{bickel1993efficient,cher2018doubleml,kennedy2022semiparametric,hines2022demystifying} to construct an asymptotically normal estimate of the projection score of interest. Specifically, we leverage the influence function of PCs to reduce the bias from sPCA. This method is detailed in \Cref{section: debiased}. In \Cref{section: app orthogonality}, we discuss an alternative strategy to achieve asymptotically Gaussian test statistics, potentially incorporating supervised linear classifiers to enhance testing power. A challenge is that such a linear discriminating direction is not well-defined under the global null. This issue frequently arises in two-sample testing problems involving nuisance parameters \citep{liu2022multiple, williamson2023general, dai2022significance, lundborg2022projected}. To tackle this challenge, we develop the anchored projection test that adaptively combines the linear discriminating direction and the principal component projection.
-
-% \textcolor{purple}{You should browse through some articles in Biostatistics and revise ours to look like them.  Here are some things to look for.  Do they use the standard main headings of Intro, Methods, Results, Disc?  If so do they put Methods early, or at the end? Do they have itemized lists, like you have here?  Or just use paragraphs, perhaps using numbering to indicate the list.  Statisticians always have this "Related Work" bit.  What do they do in this journal?  Likewise about notation.}
+\begin{revblock}
+High-dimensional mean comparison has been considered in many statistical works. For example, \cite{chen2010two} considers tests accumulating signals of all dimensions, and \cite{tony2014two} proposes a test that is more sensitive to outstanding signals established on a few features. See \cite{huang2022overview} for a more recent review and extensive numerical comparisons for this line of research. Although targeting a related topic, our formalization and methodology are more motivated by the aforementioned one-step correction literature. In general, an inference procedure combining cross-validation and black-box machine learning does not easily establish asymptotic normality \cite{lei2025modern}. We explored two methods that achieve tractable test statistics: debiasing (\Cref{section: debiased}) and approximate orthogonality (\Cref{section: app orthogonality}). Compared with many existing works targeting global equivalence \cite{huang2022overview}, this work focuses on the novel projected null \eqref{eq:proj_null} and equivalence established on clusters of features \eqref{eq: partial mean identical}.
+\end{revblock}
 
 \section{Debiased Projection and Projective Null}\label{section: debiased}
 
@@ -215,27 +216,32 @@ The details of this simulation are listed in \Cref{app: for the figure}.
 
 \subsection{Intuition of One-step Correction}\label{section: intuition}
 
-The intuition behind one-step estimation is the von Mises expansion, which is also seen as a distributional Taylor expansion in the semiparametric literature. In this subsection, we will use $v_1$ for the projection direction $u$.  We relate the testing problem to the (population) projected difference estimation:
-$\theta=\left(\mu_X-\mu_Z\right)^{\top} v_1$.
-If one can establish an asymptotically normal estimator of $\theta$, then it can be directly applied to construct confidence intervals and derive a corresponding test for $\theta = 0$. 
+\begin{revblock}
+In this section, we use a simplified example to illustrate the intuition of one-step correction in statistics. Suppose we are interested in estimating the following quantity $\gamma = \mu_X^\top v_1$, where $\mu_X$ is the population mean and $v_1$ is the leading PC direction. If $v_1$ is known and the mean is estimated, $\mu_X^{(m)\top} v_1$ is close to a Gaussian distribution, which greatly facilitates inference. Consider the plug-in estimator $ \gamma_{\rm pi}^{(-m)} = \mu_X^{(m) \top} v_1^{(-m)}$.
 
-To further simplify the presentation, we will consider a one-sample version of $\theta$ to illustrate the aforementioned principle. The extension to the corresponding two-sample problem is straightforward. Consider $\gamma = \mu_X^\top v_1$ and a plug-in estimator $\hat \gamma_{\rm pi}^{(-m)} = \mu_X^{(m) \top} v_1^{(-m)}$. One may attempt to use the following steps to characterize the asymptotic behavior of $\gamma_{\rm pi}^{(-m)}$:
+% The intuition behind one-step estimation is the von Mises expansion, which is also seen as a distributional Taylor expansion in the semiparametric literature. In this subsection, we will use $v_1$ for the projection direction $u$.  We relate the testing problem to the (population) projected difference estimation:
+% $\theta=\left(\mu_X-\mu_Z\right)^{\top} v_1$.
+% If one can establish an asymptotically normal estimator of $\theta$, then it can be directly applied to construct confidence intervals and derive a corresponding test for $\theta = 0$. 
+
+% To further simplify the presentation, we will consider a one-sample version of $\theta$ to illustrate the aforementioned principle. The extension to the corresponding two-sample problem is straightforward. Consider $\gamma = \mu_X^\top v_1$ and a plug-in estimator $\hat \gamma_{\rm pi}^{(-m)} = \mu_X^{(m) \top} v_1^{(-m)}$.
+
+One may attempt to use the following steps to characterize the asymptotic behavior of $\gamma_{\rm pi}^{(-m)}$:
 \begin{equation}\label{eq: example decomposition}
       \gamma_{\rm pi}^{(-m)} - \gamma =  (\mu_X^{(m)} - \mu_X)^\top v_1 +  (\mu_X^{(m)} - \mu_X)^\top(v_1^{(-m)} - v_1)+ \mu_X^\top (v_1^{(-m)} - v_1).
 \end{equation}
-The first term in the RHS of \Cref{eq: example decomposition} converges to a normal distribution after proper normalization, which we will refer to as the CLT term. The second term is often of a higher order than the CLT term because both $\mu_X^{(m)} - \mu_X$ and $v_1^{(-m)} - v_1$ shrink to zero and are mutually independent. The third term corresponds to the bias due to using the estimated version $v_1^{(m)}$. When the dimension of $X$ is large, $v_1^{(-m)}$ often converges to $v_1$ at a slower rate than the CLT term and its irregular distribution (partially due to regularization such as sparsity induction) dominates the CLT term. 
+The first term in the RHS of \Cref{eq: example decomposition} converges to a normal distribution after proper normalization, which we will refer to as the CLT term. The second term is often of a higher order than the CLT term because it is a product of two terms both shrinking to zero.
+The third term usually prevents $\gamma_{\rm pi}^{(-m)}$ from establishing a Gaussian distribution in high-dimensional settings. It corresponds to the bias due to using the estimated $v_1^{(-m)}$. When the dimension of $X$ is large, $v_1^{(-m)}$ often converges to $v_1$ at a slower rate than the CLT term, and its irregular distribution---possibly due to the induced sparsity---dominates the CLT term.  
 
-Fix $\mu_X$, we can treat $\mu_X^\top v_1^{(-m)}$ as a mapping from the distribution associated with $\mathcal{D}^{(-m)}$, denoted as $P_n^{(-m)}$, to a number. 
-% If we denote the sample distribution as $P_n^{(-m)}$, we would first calculate its leading eigenvector, then take the inner product with $\mu_X$. 
-So the third term in \eqref{eq: example decomposition} can be rewritten as
+A closer examination of this problematic term enlightens a solution. For a fixed $\mu_X$, we can treat $\mu_X^\top v_1^{(-m)}$ as a mapping from the distribution associated with $\mathcal{D}^{(-m)}$, denoted as $P_n^{(-m)}$, to a number. So the third term in \eqref{eq: example decomposition} can be rewritten as
 \begin{equation*}
 \mu_X^{\top}v_1^{(-m)}-\mu_X^{\top}v_1 =: f_\gamma(P_n^{(-m)}) - f_\gamma(P),
 \end{equation*}
-where we use $P$ to denote the law of $X$. The von Mises expansion states that for regular $f_{\gamma}$'s, we can perform the following Taylor expansion:
+where we use $P$ to denote the law of $X$. The function $f_{\gamma}(\cdot)$ takes in a distribution and returns the inner product, which can be quite opaque. However, the von Mises expansion states that for regular $f_{\gamma}$'s, we can linearize this difference:
 \begin{equation}\label{eq: example_von_mises}
    f_\gamma(P_n^{(-m)}) - f_\gamma(P) = -E_P[\varphi_\gamma(X;P_n^{(-m)})] + \text{higher order remainder }
 \end{equation}
-with a function $\varphi_\gamma$ that can sometimes be explicitly calculated---which is known as the influence function of the parameter $\gamma$. See \cite{fisher2021visually} for more intuition and visual illustrations on the expansion.
+with a function $\varphi_\gamma$ that can be explicitly calculated---which is known as the influence function of the parameter $\gamma$. So now we know the third term in \eqref{eq: example decomposition} is essentially an expectation plus a statistically smaller term. (See \cite{fisher2021visually} for more intuition and visual illustrations on the expansion.)
+\end{revblock}
 
 This motivates the bias correction procedure where people use a sample independent from $\mathcal{D}^{(-m)}$ to estimate the expectation wrapping $\varphi_\gamma$ in \eqref{eq: example_von_mises}, and add it on both sides of \eqref{eq: example decomposition}. Under certain conditions, we can show that 
 $
@@ -306,7 +312,7 @@ $
 In addition, the projected variances are non-degenerate: $E\left[W_n\right] \geq C>0$ for some constant $C$. A similar condition holds for the $Z$ distribution.
 \end{assumption}
 
-\begin{remark}\label{remark: triangular array}(Varying dimensionality) In \Cref{assumption: degenerate}, we explicitly allow the dimensionality $p=p_n$ and the data-generating distributions to vary with the sample size $n$, a setup known as the triangular array setting in high-dimensional statistics. For each $n$, a dataset $\mathcal{D}$ of size $N_X+N_Z$ is drawn from distributions $P_{X, n}$ and $P_{Z, n}$, each supported on $\mathbb{R}^{p_n}$. As $n$ increases, new datasets are independently generated and reside in higher-dimensional spaces. The population quantities such as $\Sigma_X, \mu_X = \mu_{X,n}$ and $v_1$ also implicitly depend on $p_n$. The constants $C$ in \Cref{assumption: basic} and \ref{assumption: degenerate} serve as uniform constraints not depending on $n$. The uniform integrability conditions are used to establish a triangular array law of the large number for consistent variance estimation. For simplicity, we will suppress most subscripts when their meaning is clear from context.
+\begin{remark}\label{remark: triangular array}(Varying dimensionality) In \Cref{assumption: degenerate}, we explicitly allow the dimensionality $p=p_n$ and the data-generating distributions to vary with the sample size $n$, a setup known as the triangular array setting in high-dimensional statistics. For each $n$, a dataset $\mathcal{D}$ of size $N_X+N_Z$ is drawn from distributions $P_{X, n}$ and $P_{Z, n}$, each supported on $\mathbb{R}^{p_n}$. As $n$ increases, new datasets are independently generated and reside in higher-dimensional spaces. The population quantities such as $\Sigma_X, \mu_X = \mu_{X,n}$ and $v_1$ also implicitly depend on $p_n$. The constants $C$ in \Cref{assumption: basic} and \ref{assumption: degenerate} serve as uniform constraints not depending on $n$. The uniform integrability conditions are used to establish a triangular array law of large numbers for consistent variance estimation. For simplicity, we will suppress most subscripts when their meaning is clear from context.
 \end{remark}
 
 Our main result in this section is formally presented below. We use $\phi_{X,n}$ to denote the ``true" influence function, replacing all the estimated quantities in $\phi_X^{(-m)}$ by their population version. See \eqref{eq: define_true_influence} for its explicit formula. While $\phi_{X, n}$ depends on $n$ in the triangular array setting, we will suppress the index $n$ when the meaning is clear from context. We will also use $w$ to denote the training sample size ratio $w=n_X /\left(n_X+n_Z\right)$.
@@ -326,7 +332,7 @@ Our main result in this section is formally presented below. We use $\phi_{X,n}$
          \item The nuisance parameters are estimated well: for any $\epsilon > 0$:
          \begin{equation}\label{eq: quarter rate} \lim_{n\rightarrow\infty}\mathbb{P}\left(\left\|\Sigma^{(-m)}-\Sigma\right\| \geq \epsilon n^{-1 / 4}\right) = 0.
          \end{equation}
-         Similar conditions also hold for $\left\|\mu_X-\mu_X^{(-m)}\right\| $ and $\left\|\mu_Z-\mu_Z^{(-m)}\right\|$.
+         Similar conditions also hold for $\|\mu_X-\mu_X^{(-m)}\| $ and $\|\mu_Z-\mu_Z^{(-m)}\|$.
     \end{itemize}
 Then under the projected null hypothesis $H_0^{\rm proj}(v_1)$, we have $T_{\rm 1s}(v_1) \stackrel{d}{\rightarrow} \mathcal{N}(0,1)$ as $n\rightarrow\infty$. 
 \end{theorem}
@@ -336,10 +342,13 @@ is presented in \Cref{app: debiased stat}.
 
 Condition \eqref{eq: quarter rate} in \Cref{th: one step} is the most essential for establishing the asymptotic normality. They require the high-dimensional quantities $\Sigma$, $\mu_X,\mu_Z$ to be estimated at a rate faster than $n^{-1/4}$ (recall in low-dimensional settings they can be estimated in a parametric rate $\sqrt{p/n}$). This type of condition is common in the one-step estimation literature---including the well-known doubly-robust estimator of average treatment effect \citep{glynn2010introduction}. When $p = p_n$ diverges faster than $n^{1/2}$, the above $\sqrt{p/n}$ rate no longer satisfies our requirement. Additional structures and regularization techniques are necessary to improve estimation accuracy.
 
-In our case, we can apply some regularized estimators of $\mu_X, \mu_Z$ to achieve the $o_P(n^{-1/4})$ rate. One choice is simply calculating simple sample means from $\mathcal{D}^{(-m)}$ and hard thresholding each entry at $\sqrt{\log p/n}$. This procedure and a close variation (``soft-thresholding") give estimators converging in rate $\sqrt{\log p/n} \ll n^{-1/4}$, assuming a small number of entries of $\mu_X$ are non-zero \cite{johnstone2019gaussian}.
+\begin{revblock}
+In our case, we can apply some regularized estimators of $\mu_X, \mu_Z$ to achieve the $o_P(n^{-1/4})$ rate. One choice is simply calculating simple sample means from $\mathcal{D}^{(-m)}$ and hard thresholding each entry at $\sqrt{\log p/n}$. This procedure and its close variations give estimators converging at rate $\sqrt{\log p/n} \ll n^{-1/4}$, assuming a small number of entries of $\mu_X$ are non-zero or it lies in some $l_q$-balls with $0<q<1$ \cite{donoho1994, johnstone2019gaussian}.
 % In the statistical literature, this type of estimator has been extensively discussed in wavelet nonparametric regression in the 1990s \cite{donoho1995noising}. It is also related to James-Stein estimator \cite{stein1956inadmissibility} and Lasso under orthonormal designs (\cite{tibshirani1996regression}, Section~10).
 
-Estimation of high-dimensional covariance matrices is a more recent topic and has been extensively studied in the past two decades. The high dimensionality is often tackled by some covariance structures such as low-rank, approximate block-diagonal, or sparsity. The theoretical rates of many estimators, measured in the operator spectral norm $\|\Sigma^{(-m)} - \Sigma\|$, are often of order $\sqrt{\log p/n}$ or $n^{-\alpha/(2\alpha + 1)}$ with some regularity index $\alpha > 0$, possibly achieving the required $o(n^{-1/4})$ rate in \eqref{eq: quarter rate}. We refer our readers to (e.g., \cite{fan2016overview}) for more extensive surveys of frequently imposed structures and available methods.
+Estimating high-dimensional covariance matrices is comparatively more recent. This task is possible when the covariance matrix satisfies certain structures, including low-rank, approximate block-diagonal, or sparsity. The theoretical rates of many estimators, measured in the operator spectral norm $\|\Sigma^{(-m)} - \Sigma\|$, are often of order $\sqrt{\log p/n}$ or $n^{-\alpha/(2\alpha + 1)}$ with some regularity index $\alpha > 0$, possibly achieving the required $o(n^{-1/4})$ rate in \eqref{eq: quarter rate}. For light-tail distributions, computing sample covariance matrix and thresholding small elements to zero can cover a wide range of sparse truth (also illustrated in our \Cref{app: additional simulation}). Modifying the sample covariance matrix to some robust versions, the thresholding pipeline can achieve the $o_P(n^{-1/4})$ rate even when data is much more dispersed \cite{avella2018robust}.
+% We also refer our readers to (e.g., \cite{fan2016overview}) for more extensive surveys.
+\end{revblock}
 
 \Cref{th: one step} is stated for $u = v_1$, but the procedure extends directly to other leading PCs $v_j$ under mild regularity conditions, with essentially the same analysis. However, generalizing it to an arbitrary $u$ is more challenging, as it requires deriving the explicit form of the influence function and quantifying the estimation accuracy requirements for the nuisance parameters. The details are handled on a case-by-case basis. However, if $u$ is an approximately sparse vector, the approximate orthogonality framework that will be introduced soon provides a more suitable and less restrictive approach.
 
@@ -385,19 +394,14 @@ The approximate orthogonality condition \eqref{eq:3.2-approx-orth} is more likel
 \subsection{Anchored Projection Tests}
 \label{section: anchored lasso}
 
-In this previous subsection we showed that, according to the approximate orthogonality condition, the plug-in projected statistic $T_{\rm pi}$ can serve as a convenient and flexible tool to detect deviation from the global null hypothesis $\mu_X=\mu_Z$. In this section, we formally develop this idea into an ``anchored projected test'' with the following appealing features:
-\begin{itemize}
-    \item It does not involve debiasing; 
-    \item It achieves good power against the global null;
-    \item It avoids the degeneracy issue commonly encountered by existing methods under the null hypothesis;
-    \item It provides information on the potential location of the signal under sparse alternatives.
-\end{itemize}
+In this previous subsection we showed that, according to the approximate orthogonality condition, the plug-in projected statistic $T_{\rm pi}$ can serve as a convenient and flexible tool to detect deviation from the global null hypothesis $\mu_X=\mu_Z$. In this section, we formally develop this idea into an ``anchored projected test'' with the following appealing features: 1) It does not involve debiasing; 2) It achieves good power against the global null; 3) It avoids the degeneracy issue commonly encountered by existing methods under the null hypothesis; and 4) It provides information on the potential location of the signal under sparse alternatives.
+
 % Directions established based on dimensional correlation can often capture the systematic variation in the data, and the estimates $u^{(-m)}$ are often supported on biologically meaningful gene clusters.  The cross-fitting statistics \eqref{eq:simple statistics} explore the effective direction on one part of the data and calculate the projective score on the other half, which is a simple but effective framework to mitigate type-I error due to double dipping.  
 
 Although the sparse PCs serve as a natural and reasonable choice of projected comparison,
 depending on the scientific research goal, one may alternatively be interested in projective directions that maximize the contrast between the two groups, prioritizing overall detection power over the correlation structure. Intuitively, these directions correspond to the linear discriminating directions that best classify the two populations.
 
-Constructing high-dimensional sparse linear classifiers has been well-studied in the literature, including logistic Lasso \citep{tibshirani1996regression,van2008high} and sparse LDA \citep{cai2011direct}. However, when $\mu_X = \mu_Z$, the population-level discriminating direction degenerates. In practice, it is also direct to verify via a simple simulated experiment (\Cref{appfig: funny lasso}) that cross-validated linear classifiers such as logistic Lasso have a positive probability to be exactly zero. This is a common problem encountered in two-sample testing involving nuisance parameters, and many existing results \cite{liu2022multiple} are only established under the alternative hypothesis. 
+Constructing high-dimensional sparse linear classifiers has been well-studied in the literature, including logistic Lasso \citep{tibshirani1996regression,van2008high} and sparse LDA \citep{cai2011direct}. However, when $\mu_X = \mu_Z$, the population-level discriminating direction degenerates. In practice, it is also direct to verify via a simple simulated experiment (\Cref{appfig: funny lasso}) that cross-validated linear classifiers such as logistic Lasso have a positive probability to be exactly zero. This is a common problem encountered in two-sample testing involving nuisance parameters. Many existing results \cite{liu2022multiple} are only established under the alternative hypothesis because the optimal projection direction degenerates under equivalent means.
 
 In order to overcome the degeneracy issue, we propose an easy-to-use sparse projection that ``anchors" the potentially degenerative discriminating direction to a regular proxy such as a sparse PC vector. When the signal is moderately strong, the projection direction will mainly follow the estimated discriminating direction, which better contrasts the samples and yields higher power. On the other hand, when the signal is weak, the estimated discriminating direction is noisy, and the proxy direction takes over to avoid degeneracy.
 
@@ -492,7 +496,7 @@ We set up a simulation study to illustrate an application scenario of \Cref{th: 
 
 The mean difference between $\mu_X-\mu_Z$ is on the second block: ${\rm supp}(\mu_X-\mu_Z) = \mathcal{S}_2$. The true leading PCs satisfy ${\rm supp}(v_j) = \mathcal{S}_j$ for $j = 1,2$. We apply sPCA to estimate the leading PCs. The PC1, $v_1^{(-m)}$, has larger non-zero loadings in the first block $\mathcal{S}_1$ and has some non-zero values in the other blocks due to randomness. On the other hand, PC2 $v_2^{(-m)}$ are mostly supported on the second block $\mathcal{S}_2$ where the mean difference signal is established. Thus $v_1^{(-m)}$ satisfies the condition in Theorem \ref{th: approximate orthogonal} while $v_2^{(-m)}$ does not. The distribution of $T_{\rm pi}(v_1)$ and $T_{\rm pi}(v_2)$ are shown in \Cref{fig: marginal and plug in}B. Although the marginal distributions are irregular (non-Gaussian), it is not hard to obtain an approximately Gaussian statistic under the given moderate sample sizes. We note that sPCA is crucial for this experiment---using least square PCA leads to inflated type-I error because they do not localize ${\rm supp}(v_j^{(-m)})$ and assign loadings to all the dimensions, violating \Cref{eq: u has small residual}.
 
-In addition to sPCA, many other methods, including the popular clustering tool WGCNA \cite{langfelder2008wgcna}, can be applied to obtain the projection direction $u^{(-m)}$. Based on the correlation structure between the dimensions, WGCNA divides the total $p$ dimensions into multiple modules $\hat{\mathcal{S}}_i\subset [p]$. Within each module, it performs PCA to obtain a vector $u_i^{(-m)}$ supported on $\hat{\mathcal{S}}_i$, which is called eigengene (\cite{langfelder2007eigengene}, equation (29)), serving as a summary of the variation pattern. \Cref{th: approximate orthogonal} can also be applied to this setting.
+We implemented the $l_1$-penalized sPCA framework introduced in \cite{witten2009penalized}. See \Cref{app: sPCA} for more details of this method. In addition to sPCA, many other methods, including the popular clustering tool WGCNA \cite{langfelder2008wgcna}, can be applied to obtain the projection direction $u^{(-m)}$. Based on the correlation structure between the dimensions, WGCNA divides the total $p$ dimensions into multiple modules $\hat{\mathcal{S}}_i\subset [p]$. Within each module, it performs PCA to obtain a vector $u_i^{(-m)}$ supported on $\hat{\mathcal{S}}_i$, which is called eigengene (\cite{langfelder2007eigengene}, equation (29)), serving as a summary of the variation pattern. \Cref{th: approximate orthogonal} can also be applied to this setting.
 
 \subsection{Type-I error and power assessment}
 
@@ -501,7 +505,7 @@ In this section, we present some numerical results based on simulated datasets. 
 
 \begin{figure}[!t]
     \centering
-    \includegraphics[width =\linewidth]{paper_plot/24_main_simulation.pdf}
+    \includegraphics[width =0.9\linewidth]{paper_plot/24_main_simulation.pdf}
     \caption{Rejection sizes of the numerical studies.
     \textbf{(A)} Under the projective null when $\mu_X \neq \mu_Z$ but $(\mu_X - \mu_Z)^\top v_1 = 0$. \textbf{(B)} An alternative setting when the mean difference has a non-zero projection on both $v_1$ and $v_2$ directions. The signal aligns with $v_2$ is much larger than that for $v_1$. 
     } 
@@ -515,24 +519,36 @@ While the projection direction follows the null, we set $\|\mu_X - \mu_Z\|$ to b
 %The results in \Cref{fig: main simulation} B are under the alternative hypothesis. We dropped the plug-in statistic but include $T_{\rm 1s}(v_2)$ and $T_{\rm anc}(v_2)$ that concern the second PC direction.
 To evaluate power under the alternative hypothesis, we dropped the plug-in statistic and included a secondary direction with $T_{\rm 1s}(v_2)$ and $T_{\rm anc}(v_2)$ that utilizes the second PC (\Cref{fig: main simulation}B). The signal aligned with PC1 $v_1$ is set to be much smaller than that with PC2 $v_2$, therefore, the observed rejection rate of $T_{\rm 1s}(v_1)$ (resp. $T_{\rm anc}(v_1)$) is lower than $T_{\rm 1s}(v_2)$ (resp. $T_{\rm anc}(v_1)$). Notably, $T_{\rm anc}(v_1)$ can adaptively adjust the projection direction to where the stronger signal lies, even when it is anchored to the sub-optimal proxy $v_1$. 
 
+\begin{revblock}
+    The presented results are simulated under spike models. In \Cref{app: additional simulation}, we provide additional results under unstructured sparse covariance matrices.
+\end{revblock}
+
 \section{An Application to Immune Cell Gene Expression in a Lupus Study}\label{section: real data}
 
 \subsection{Dataset and Pre-processing}
 
 To investigate molecular mechanisms underlying Systemic Lupus Erythematosus (SLE)—a heterogeneous autoimmune disease with elevated prevalence in women and individuals of Asian, African, and Hispanic ancestry—we apply our proposed procedures, $T_{\rm 1s}$ and $T_{\rm anc}$, to a large-scale single-cell RNA-sequencing study \cite{perez2022single}. One of the study’s primary goals is to identify differentially expressed genes across immune cell types between SLE cases and healthy controls. The public dataset contains expression profiles of $1.2$ million cells from 8 major immune cell types, sampled from $261$ individuals ($162$ with SLE and $99$ healthy controls).
 
-We use the Python package {\tt scanpy} \cite{wolf2018scanpy} to pre-process the single-cell data and select the top $2000$ highly variable genes within each cell type.  For each cell type, we aggregate expression across cells from the same individual to obtain ``pseudo-bulk" counts for each gene, and then remove genes expressed in less than 10 individuals.  This means each sample of our analysis corresponds to one individual and they can be treated as IID samples from several homogeneous populations.  Next, we applied the standard shifted-log-normalization with a size factor (e.g., equation (2) in \cite{ahlmann2023comparison}), converting raw expression count to its logarithm, to stabilize the sample value and make it more amenable to comparisons. In this study, we focus on $4$ important immune cell types with a moderately large number of samples and compare the case and control gene-expression profiling within each. We also regress out the library size, sex, population, and processing cohorts to remove potential confounding under a simple linear model. The gene expression variable (i.e. each dimension of $X_i, Z_i$) is normalized to have unit variance. We use $M=10$ when performing cross-fitting.
+\begin{revblock}
+We use the Python package {\tt scanpy} \cite{wolf2018scanpy} to pre-process the single-cell data and select the top $2000$ highly variable genes within each cell type.  For each cell type, we aggregate expression across cells from the same individual to obtain pseudo-bulk counts for each gene, and then remove genes expressed in less than 10 individuals. 
+This means each sample of our analysis corresponds to one individual, and they can be treated as IID samples from several homogeneous populations (while working directly with single-cell level profiles would induce cluster samples, which is an important yet challenging task compared with the framework presented in this work). 
+\end{revblock}
+Next, we applied the standard shifted-log-normalization with a size factor (e.g., equation (2) in \cite{ahlmann2023comparison}), converting raw expression count to its logarithm, to stabilize the sample value and make it more amenable to comparisons. In this study, we focus on $4$ important immune cell types with a moderately large number of samples and compare the case and control gene-expression profiling within each. We also regress out the library size, sex, population, and processing cohorts to remove potential confounding under a simple linear model. The gene expression variable (i.e. each dimension of $X_i, Z_i$) is normalized to have unit variance. We use $M=10$ when performing cross-fitting.
 
 \begin{figure}[!t]
     \centering
     \includegraphics{paper_plot/upset_T4_with_negative_binomial_modified.pdf}
-    \caption{Test results for the T4 cell sample. We report the p-value for each proposed test. Lasso: $T_{\rm anc}\left(v_1\right)$; PC1-PC4: $T_{\rm 1s}\left(v_1\right)$ - $T_{\rm 1s}\left(v_4\right)$. We also assess how much the active gene set--those having non-zero loadings in Lasso or PC vectors--of each test overlaps, in the format of an ``UpSet'' plot. Two lists of genes that are reported to be marginally significant between groups are also included. Specifically, {\tt GLM\_NB} is based on negative-binomial regression with (threshold $0.05$) and {\tt GLM\_NB\_ADJ} has a Bonferroni adjusted threshold $0.05/1255$. This plot should be read as: there are $91$ genes reported to be significant according to negative-binomial regression but not contained in any of the Lasso or PC vectors; one gene is contained in both Lasso and PC1 active sets.}
+    \caption{Test results for the T4 cell sample. We report the p-value for each proposed test. Lasso: $T_{\rm anc}\left(v_1\right)$; PC1-PC4: $T_{\rm 1s}\left(v_1\right)$ - $T_{\rm 1s}\left(v_4\right)$. We also assess how much the active gene set--those having non-zero loadings in Lasso or PC vectors--of each test overlaps, in the format of an ``UpSet'' plot. Two lists of genes that are reported to be marginally significant between groups are also included. Specifically, {\tt GLM\_NB} is based on negative-binomial regression (with $0.05$ threshold) and {\tt GLM\_NB\_ADJ} has a Bonferroni adjusted threshold $0.05/1255$. This plot should be read as: there are $91$ genes reported to be significant according to negative-binomial regression but not contained in any of the Lasso or PC vectors; one gene is contained in both Lasso and PC1 active sets.}
     \label{fig: upset}
 \end{figure}
 
 \subsection{Testing Results}
 
-The anchored-Lasso test $T_{\rm anc}\left(v_1\right)$ and the debiased test for the top four PC directions $T_{\rm 1s}\left(v_1\right)-T_{\rm 1s}\left(v_4\right)$ are applied to the CD4 T lymphocytes (T4), a critical cell type that helps to coordinate the immune response (\Cref{fig: upset}, results for other cell types are presented in \Cref{app: immune cell results}). For $T_{\rm anc}\left(v_1\right)$, the reported p-value corresponds to the global null, whereas the debiased tests $T_{\rm 1s}(v_k)$, $k = 1,\ldots,4$, correspond to the projected nulls $(\mu_X - \mu_Z)^\top v_k = 0$, $k = 1,\ldots,4$, respectively. The anchored test and the PC1, PC4 debiased tests report significant differences at the standard $0.05$ threshold. The latter two results answer our motivating questions in the Introduction (\Cref{fig: motivation}B): the observed distributional difference between case and control samples, in the directions of PC1 and PC4, is indeed statistically significant. 
+The anchored-Lasso test $T_{\rm anc}\left(v_1\right)$ and the debiased test for the top four PC directions $T_{\rm 1s}\left(v_1\right)-T_{\rm 1s}\left(v_4\right)$ are applied to the CD4 T lymphocytes (T4), a critical cell type that helps to coordinate the immune response (\Cref{fig: upset}, results for other cell types are presented in \Cref{app: immune cell results}). For $T_{\rm anc}\left(v_1\right)$, the reported p-value corresponds to the global null, whereas the debiased tests $T_{\rm 1s}(v_k)$, $k = 1,\ldots,4$, correspond to the projected nulls $(\mu_X - \mu_Z)^\top v_k = 0$, $k = 1,\ldots,4$, respectively. The anchored test and the PC1, PC4 debiased tests report significant differences at the standard $0.05$ threshold. 
+\begin{revblock}
+The latter two results answer our motivating questions in the Introduction (\Cref{fig: motivation}B): the observed distributional difference between case and control samples, in the directions of PC1 and PC4, is marginally significant. However, when comparing a large number of PC directions, we need to adjust the p-values to control the family-wise error rate.
+\end{revblock}
+
 
 %\subsection{Further Assessment of the Tests}
 Further details regarding the systematic signal are displayed in \Cref{fig: upset} and \ref{fig: interpretation}. The PCs define the ``active genes", which are defined as those genes consistently (across different data splits) taking non-zero loadings in $\beta^{(-m)}$ or $v_k^{(-m)}$: specifically, we define a gene to be active if it takes non-zero loadings in more than half of the estimated high-dimensional sparse vectors (``majority voting''). Assessing how much the non-zero genes vary between splits can also offer researchers basic intuition regarding the noise level when estimating $\beta^{(-m)}, v_k^{(-m)}$.   
@@ -544,12 +560,20 @@ Further details regarding the systematic signal are displayed in \Cref{fig: upse
     \label{fig: interpretation}
 \end{figure}
 
-The number of active genes for each of the PC1-PC4 is approximately $20$ (\Cref{fig: upset}). PC1 ($p=0.047$) includes $18$ genes and $14$ of them are reported to be marginally significant according to a standard univariate negative-binomial regression (p-value threshold $0.05$); however, only one survives adjustment for multiple comparisons. A further inspection of the PC1 active genes and the estimated $v_1^{(-m)}$ is provided in \Cref{fig: interpretation} A, C. These genes are all highly correlated and likely have similar functions in the immune system. PC4 ($p=0.004$) includes 19 genes and $9$ of them are reported marginally significant according to the marginal tests ($0.05$-level) and 8 retain significance after multiple comparison corrections. We provide the gene names and their correlation in \Cref{appfig: inspect PC4}  In panel A, we can observe the $19$ genes are divided into two association blocks: One contains all the mitochondrial genes, which are not protein-coding genes.  These genes are not well studied in the literature and are often removed from such analyses. The other block contains multiple genes having significant functions in the immune system: as many of their names suggest, the ``IFI" prefix stands for "InterFeron-Inducible," indicating that these genes are up-regulated in response to interferon signaling, which is an anti-virus mechanism in the human body.
+The number of active genes for each of the PC1-PC4 is approximately $20$ (\Cref{fig: upset}). PC1 ($p=0.047$) includes $18$ genes and $14$ of them are reported to be marginally significant according to a standard univariate negative-binomial regression (p-value threshold $0.05$); however, only one survives adjustment for multiple comparisons. A further inspection of the PC1 active genes and the estimated $v_1^{(-m)}$ is provided in \Cref{fig: interpretation} A, C. 
+% These genes are all highly correlated and likely have similar functions in the immune system.
+
+\begin{revblock}
+    
+
+The PC4 support genes possess a more interpretable pattern. Its active genes include IFI27, IFI44L, IFI6, IFIT3, ISG15, and MX1. As their names suggest (the ``IFI" prefix stands for "InterFeron-Inducible"), SLE cases and healthy controls differ significantly in the interferon-related pathway. Of the 19 PC4 support genes, eight are also identified as differentially expressed by the multiplicity-adjusted single-gene tests. Although the two analyses thus provide complementary descriptions of the same signal, the proposed framework also offers evidence that these eight gene-level findings are not isolated or accidental. Their expression levels are correlated, and their between-group differences can be interpreted jointly as one unit. (Further information regarding the PC4 genes is provided in \Cref{appfig: inspect PC4}.)
+
+\end{revblock}
+
+% PC4 ($p=0.004$) includes 19 genes and $9$ of them are reported marginally significant according to the marginal tests ($0.05$-level) and 8 retain significance after multiple comparison corrections. We provide the gene names and their correlation in \Cref{appfig: inspect PC4}  In panel A, we can observe the $19$ genes are divided into two association blocks: One contains all the mitochondrial genes, which are not protein-coding genes.  These genes are not well studied in the literature and are often removed from such analyses. The other block contains multiple genes having significant functions in the immune system: as many of their names suggest, the ``IFI" prefix stands for "InterFeron-Inducible," indicating that these genes are up-regulated in response to interferon signaling, which is an anti-virus mechanism in the human body.
 
 The anchored-Lasso solution is more parsimonious than the PC methods, identifying 5 active genes (\Cref{fig: upset}). Among the 5, one (B2M) overlaps with the estimated PC1 vector, and the rest are not included in the leading PCs. As illustrated by the sample correlation between these genes (\Cref{fig: interpretation}B), they are not highly correlated. Using this small set of signal genes, we can effectively separate the case and control individuals (\Cref{fig: interpretation}E). Compared with the discrimination capacity of PC1 (\Cref{fig: interpretation}D), Lasso's score distribution is visually more bimodal, which is expected since we selected these genes via a label-prediction task. With the exception of RPS27, the five active genes are reported in the biomedical literature to encode important proteins in the immune response and/or antiviral activity\cite{creus2012multifaceted,tang2021impact, largent2023dysregulated, takeuchi2019genome}. Depending on the specific purpose of the scientific research, a user can decide which test is more relevant to each of their goals. However, our methods are likely to point them to more biologically meaningful signals than a simple global test.
 
-% \textcolor{purple}{NOTE: If the article is too long, we can put some of the details for this example in the Supplement. I think it was a good idea to replace genes with gene modules in this example. The results are interesting and well presented.  However, the transition from a paper, primarily about projected directions to an example only about the Anc method is abrupt.  Moreover, to suddenly use modules instead of genes is a big surprise.\\
-% My suggestion is that we show the Lupus example first.  It really illustrates your methods in action very smoothly.  Then show the Yao analysis.  We can motivate why you are using modules and why only Anc.  I assume your reasoning is greater interpretability (modules) and only Anc, because there are so many perturbations to contrast.}
 
 \section{An Application using Perturb-seq Data}\label{section: clearys data}
 
@@ -560,8 +584,6 @@ To interrogate the function of 598 immune-related genes,  \citet{yao2024scalable
 For each cell, one of the targeted immune-related genes was perturbed (knockout) using CRISPR-Cas9, and then all cells were manipulated to trigger a strong immune response. In total, the experimental setup involved 599 groups of cells, each group had a specific gene knockout, except for one control group, which had no treatment. Single cell RNA sequencing was applied to assess the resulting gene expression changes across the whole genome in response to each gene knockout. The scientific objective was to analyze and compare the transcriptional profiles between these cells, thereby gaining insight into the molecular function of genes associated with the immune response.  
 
 Among the 599 perturbed groups, which exhibited varying sample sizes, we focused our analysis on a subset of perturbations with higher cell counts. Specifically, we included all 50 perturbations presented in the original publication \cite[Figure 3D, left]{yao2024scalable}, where the sample sizes of the analyzed groups ranged from 41 to 173 cells. The control group contained a large number of cells (4492), and to accelerate computation, we randomly subsampled 500 control cells for comparison. 
-
-% \textcolor{purple}{The count data are first normalized, dividing by library size, scaling by 10,000 and then applying a log transformation.}\textcolor{blue}{I didn't do these. The normalization is described in the following paragraph.} 
 
 The top 2000 most expressed genes are divided into gene modules such that genes in each module either have correlated expression levels or share biological function similarity. This step is solely based on expression counts of control cells, using a pipeline involving \texttt{CSCORE} \cite{su2023cell}, \texttt{WGCNA} \cite{langfelder2008wgcna}, and Gene Ontology (GO) criteria. 
 
@@ -599,8 +621,13 @@ For the perturbation ADO, the majority of the discriminative power (of the group
 
 We also observe overlap in the projective structure between certain perturbations. Notably, the projective directions for CEBPG, STK11, KIDINS220, and TLR1 are all concentrated within module 37, implying potential functional similarity. Likewise, AHR, STAT1, IFNAR1, STAT2, and TYK2 induce a common impact on modules 31 and 42.
 
-Gene Ontology is a framework facilitating gene function description. A GO enrichment analysis provides p-values that quantify how significantly a set of genes is overrepresented in a specific functional category, compared to what would be expected by chance. In \Cref{fig: cleary_loading_concentration}B, we present the GO enrichment results for selected gene modules. The modules are primarily enriched in pathways related to immune response and cell signaling. Notably, the functional annotations of Module 15 are almost a subset of those of Module 37. The pathways enriched in Module 31 show less overlap with those in Modules 15 and 37. It is scientifically intriguing to investigate the functional similarity among AHR, STAT1, IFNAR1, STAT2, and TYK2, all of which have unique impacts on this module. Genes in Module 34 do not show significant enrichment for any pathway after Bonferroni correction. Module 42 consists mainly of mitochondrial genes. We retain Module 42 in the analysis due to its interesting overlapping pattern with Module 31 in \Cref{fig: cleary_loading_concentration}A.
+\begin{revblock}
+Gene Ontology is a framework facilitating gene function description. A GO enrichment analysis provides p-values that quantify how much genes in a specific biological functional category are overrepresented in a set of genes, compared to what would be expected by chance. A small p-value for a pathway X should be interpreted as ``the gene module contains more genes from pathway X than would be expected by chance". In \Cref{fig: cleary_loading_concentration}B, we present the GO enrichment results for selected gene modules. The modules are primarily enriched in pathways related to immune response and cell signaling. Notably, the functional annotations of Module 15 are almost a subset of those of Module 37. The pathways enriched in Module 31 show less overlap with those in Modules 15 and 37. 
 
+The differential expression results well replicate some of the known functional similarity. For example, STAT1, STAT2 and TYK2 are all part of the JAK/STAT signaling pathway \citep{rawlings2004jak, hu2021jak} and they selectively impact gene module 31. TYK2 participates in phosphorylating the membrane cytokine-receptor upon ligand binding. STAT1 and STAT2 then dock at these sites, are phosphorylated by JAKs, and activate further downstream gene expression. All three genes, as well as IFNAR1, are well known for their central roles in the type I interferon signaling pathway \citep{velazquez1992protein,qureshi1995tyrosine,prchal2012tyk2}.
+
+Genes in Module 34 do not show significant enrichment for any pathway after Bonferroni correction. Module 42 consists mainly of mitochondrial genes. We retain Module 42 in the analysis due to its interesting overlapping pattern with Module 31 in \Cref{fig: cleary_loading_concentration}A.
+\end{revblock}
 
 \section{Discussion}
 \label{section: discussion}
@@ -637,6 +664,7 @@ Tianyu Zhang, Jing Lei, and Kathryn Roeder
 \vspace{2em}
 
 \appendix
+
 \renewcommand\thefigure{\thesection.\arabic{figure}}    
 \section{Simulation settings in \Cref{fig:cross-fitting under null}}
 \label{app: for the figure}
@@ -662,7 +690,9 @@ Note that we normalized $v_1$ such that $\|v_1\| = 1$.
 
 For this, we implement standard PCA to estimate $v_1$. We are aware that standard PCA is not a consistent estimator of $v_1$ in the high-dimensional setting but still stick to this choice because standard PCA is still routinely applied in high-dimensional biomedical research. Statistically, it is not the best practice but in this specific simulation, the estimation quality is satisfactory. Results do not significantly change after switching to sPCA.
 
-\section{Explicit Formulas for the Debiased Test}\label{app: explicit formula}
+\section{More Details on the Debiased Test}
+
+\subsection{Explicit formula}\label{app: explicit formula}
 
 We omitted to present the explicit formula of several quantities for constructing $T_{\rm 1s}$ in the main text to save some space. We present them in this section.
 
@@ -691,6 +721,107 @@ where
         V_Z^{(-m)}(Z)& =\left(Z-\mu_Z^{(-m)}\right)^{\top} v_1^{(-m)}-(1-w) \phi_Z^{(-m)}(Z)
     \end{aligned}
 \end{equation*}
+
+\begin{revblock}
+\subsection{A Self-contained Description of the Debiased Test Pipeline}
+
+\noindent
+Input: samples $\{X_i\}_{i=1}^{N_X}$ and $\{Z_i\}_{i=1}^{N_Z}$,
+number of folds $M$, and significance level $\alpha$.
+
+\begin{enumerate}
+\item Randomly partition each group into $M$ equal-sized folds,
+with $n_X=N_X/M$ and $n_Z=N_Z/M$ observations per fold.
+Let $\mathcal D^{(m)}$ denote fold $m$ and
+$\mathcal D^{(-m)}=\mathcal D\setminus\mathcal D^{(m)}$.
+
+\item For each $m=1,\ldots,M$:
+\begin{enumerate}
+\item Using only $\mathcal D^{(-m)}$, estimate
+$\mu_X^{(-m)}$, $\mu_Z^{(-m)}$, and $\Sigma^{(-m)}$,
+and obtain the leading sparse PC $v_1^{(-m)}$ and
+eigenvalue estimate $\lambda_1^{(-m)}$. Use a common sign convention for the PC estimates.
+
+\item Compute
+\[
+s^{(-m)}
+=
+\left(\lambda_1^{(-m)}I_p-\Sigma^{(-m)}\right)^+
+\left(\mu_X^{(-m)}-\mu_Z^{(-m)}\right).
+\]
+For $G\in\{X,Z\}$, define
+\[
+\phi_G^{(-m)}(g)
+=
+s^{(-m)\top}
+\left[
+(g-\mu_G^{(-m)})(g-\mu_G^{(-m)})^\top
+-\Sigma^{(-m)}
+\right]v_1^{(-m)}.
+\]
+
+\item Using the held-out fold $\mathcal D^{(m)}$, compute
+the sample means $\mu_X^{(m)}$ and $\mu_Z^{(m)}$ and
+the corrected projected difference
+\[
+\hat\theta_{\rm 1s}^{(m)}
+=
+\left(\mu_X^{(m)}-\mu_Z^{(m)}\right)^\top v_1^{(-m)}
++
+\frac{
+\sum_{X_i\in\mathcal D^{(m)}}\phi_X^{(-m)}(X_i)
++
+\sum_{Z_i\in\mathcal D^{(m)}}\phi_Z^{(-m)}(Z_i)
+}{n_X+n_Z}.
+\]
+
+\item Set $w=n_X/(n_X+n_Z)$ and compute the held-out scores
+\[
+\begin{aligned}
+V_X^{(-m)}(X_i)
+&=(X_i-\mu_X^{(-m)})^\top v_1^{(-m)}
++w\phi_X^{(-m)}(X_i),\\
+V_Z^{(-m)}(Z_i)
+&=(Z_i-\mu_Z^{(-m)})^\top v_1^{(-m)}
+-(1-w)\phi_Z^{(-m)}(Z_i).
+\end{aligned}
+\]
+Let $\bar V_G^{(m)}$ be the average score for group $G$
+in fold $m$, and calculate
+\[
+\hat q_G^{(m)}
+=
+\frac{1}{n_G}
+\sum_{G_i\in\mathcal D^{(m)}}
+\left(V_G^{(-m)}(G_i)-\bar V_G^{(m)}\right)^2,
+\qquad G\in\{X,Z\}.
+\]
+\end{enumerate}
+
+\item Aggregate the fold estimates:
+\begin{equation*}
+    T_{\rm 1s}
+ =
+\frac{\sum_{m=1}^M\hat\theta_{\rm 1s}^{(m)}}
+{\hat\sigma_{\rm 1s}} 
+\end{equation*}
+where
+\begin{equation*}
+        \hat\sigma_{\rm 1s}^2
+ =
+\sum_{m=1}^M
+\left(\frac{\hat q_X^{(m)}}{n_X}
++\frac{\hat q_Z^{(m)}}{n_Z}\right)
+\end{equation*}
+
+\item Return the two-sided $p$-value
+\[
+p_{\rm 1s}=2\left\{1-\Phi\left(|T_{\rm 1s}|\right)\right\},
+\]
+where $\Phi$ is the standard normal distribution function.
+Reject $H_0^{\rm proj}(v_1)$ if $p_{\rm 1s}<\alpha$.
+\end{enumerate}
+\end{revblock}
 
 \section{Proof of Theorem \ref{th: one step}}
 \label{app: debiased stat}
@@ -1078,7 +1209,7 @@ Under our assumptions, the products above
    & \left(\mu_X^{(-m)}-\mu_Z^{(-m)}\right)^{\top}D_0\left(\Sigma-\Sigma^{(-m)}\right) \int_0^1(v(t)-v(0)) d t
 \end{aligned}
 \end{equation}
- are all of order $o_P(n^{-1/2})$. We present the details of the argument in \Cref{lemma: bound terms in remainder}. Combine this result with \eqref{eq: simple X term} and \eqref{eq: simple Z term}, we conclude our proof.
+ are all of order $o_P(n^{-1/2})$. We present the details of the argument in \Cref{lemma: bound terms in remainder}. Combining this result with \eqref{eq: simple X term} and \eqref{eq: simple Z term}, we conclude our proof.
 \end{proof}
 
 In the following lemma, we show the remainder terms are small under the conditions listed in the main text.
@@ -1550,6 +1681,17 @@ in \Cref{appfig: funny lasso}, where the intermediate quantities are similarly c
 
 \section{More Details on Simulated Data}
 
+\subsection{Sparse PCA Estimation}\label{app: sPCA}
+
+\begin{revblock}
+We implemented the $\ell_1$-penalized sparse PCA framework introduced by \cite{witten2009penalized}. The authors applied an iterative algorithm to solve a penalized matrix decomposition of the data matrix, which can be viewed as a low-rank singular value decomposition with an $\ell_1$ constraint on the singular vectors. The explicit objective function is given in Equation~(2.7) of \cite{witten2009penalized}. The tuning parameter in this optimization problem is selected by cross-validation. The details of this procedure are described in the manual for the \texttt{SPC.cv} function in the \texttt{R} package \texttt{PMA} \citep{PMA}. We include a short summary here for readers' convenience.
+
+The \texttt{SPC.cv} function performs cross-validation for the first sparse principal component. It repeats the following steps across folds: (1) replace a fraction of the entries in the data matrix with missing values; (2) apply \texttt{SPC} to this partially observed data matrix over a range of tuning parameter values, each time obtaining a rank-one approximation $udv^\top$ with sparse $v$; and (3) measure the mean squared prediction error for the missing entries created in step 1. The selected tuning parameter is the one with the lowest average mean squared prediction error in step 3.
+
+To perform cross-validation for the second sparse principal component, the same procedure is applied to the deflated matrix $X-udv^\top$, where $udv^\top$ is the rank-one component obtained by applying \texttt{SPC} to the original data matrix $X$.
+\end{revblock}
+
+
 \subsection{Simulation Study for Type-I Error and Power}\label{app: simulated data}
 We will use the notation that $a_s$ is a vector of length $s$ whose elements are all equal to $a\in\mathbb{R}$ and $I_p$ is an identity matrix of dimension $p\times p$.
 
@@ -1635,6 +1777,65 @@ Let $\Sigma_X=\Sigma_Z \in \mathbb{R}^{300 \times 300}$ be a block diagonal matr
 
 After generating the data matrices, we randomly choose half of the entries to set to $0$. Moreover, we also shrink any value less than $0.5$ to $0$, including all negative values. 
 
+\section{Simulation Under Unstructured Sparse Correlation}
+\label{app: additional simulation}
+
+\begin{revblock}
+
+The simulation data in \Cref{section: simulation} is generated under spike models where the population eigenvectors are sparse. To illustrate that the proposed methods are applicable beyond these settings, we conducted supplementary simulation studies. In this section, we consider high-dimensional unstructured covariance matrices where the eigenvectors have dense supports over all the dimensions.
+
+\subsection{Unstructured Covariance Matrix}
+We considered two settings where $p\in\{100,1000\}$. The covariance matrix was determined as follows: We first created a symmetric matrix $A$
+with zero diagonal elements. We then selected $4p$ unordered off-diagonal pairs $\{i,j\}$ uniformly at
+random and assigned each selected $A_{ij} = A_{ji}$ a common random value. After obtaining $A$, the population covariance matrix was
+\[
+\Sigma=I_p+0.9\frac{A}{\lVert A\rVert_{\rm op}}.
+\]
+We iterated over several $A$'s and retained the first generated covariance matrix whose leading eigengap was at
+least $0.2$. For each dimension $p$, we fixed this covariance matrix across all repetitions and sample sizes.
+
+Since we are altering, randomly, only $\sim p$ of the total $\sim p^2$ off-diagonal to non-zero numbers, such matrices are estimable in high-dimensional settings. This is because these matrices do not accumulate too many non-zero elements in each row or column. For both dimensions, the covariance matrices generated in this fashion typically have $8$ non-zero elements for each row. Both of them have a maximum of $17$ non-zero elements in a single row. Such matrices are sparse in a nicer way: in \cite{bickel2008covariance}, Theorem~1, the authors showed that hard-thresholding is effective for estimating this type of sparse matrices (our matrices lie in their $\mathcal{U}_\tau\left(0, c_0(p), M\right)$ class). Note that these matrices have dense eigenvectors.
+
+\subsection{Mean Shifts under Projected Null and Alternative}
+
+Let $S$ contain the ten coordinates with the largest absolute entries of
+$v_1$. We constructed a unit vector $\delta_\perp$, supported on $S$, by
+pairing these coordinates and swapping their $v_1$ loadings with alternating
+signs. This construction gives $\delta_\perp^\top v_1=0$. Under the projected
+null, the population mean difference was $5\delta_\perp$ for both dimensions.
+Consequently, $\mu_X$ and $\mu_Z$ differ substantially while
+still satisfying
+\[
+(\mu_X-\mu_Z)^\top v_1=0.
+\]
+For the alternative, we used
+\[
+\mu_X-\mu_Z=
+\begin{cases}
+\displaystyle
+\delta_\perp+0.25\cdot \frac{v_{1,S}}{v_1^\top v_{1,S}}, & p=100,\\[8pt]
+\displaystyle
+\delta_\perp+2\cdot \frac{v_{1,S}}{v_1^\top v_{1,S}}, & p=1000,
+\end{cases}
+\]
+where $v_{1,S}$ agrees with $v_1$ on $S$ and is zero elsewhere. We used a larger signal size ($2$) for $p=1000$ than $p = 100$ ($0.25$) to illustrate a more interesting power regime (which also reflects that higher dimensions make the problems harder). After determining the mean shifts, we used them to define the true mean for each group $\mu_X=(\mu_X-\mu_Z)/2$ and $\mu_Z=-(\mu_X-\mu_Z)/2$. The observations are normal vectors based on $(\mu_X, \Sigma)$ and $(\mu_Z, \Sigma)$. We used balanced sample sizes for both groups.
+
+\subsection{Implementation of the Plug-in and Debiased Methods}
+
+We implemented both methods using five-fold cross-fitting. When estimating the covariance matrix, we first compute the simple sample covariance matrix pooling both control and treatment samples. Afterwards, we obtain the hard-thresholded estimator $\Sigma^{(-m)}$ by truncating off-diagonal elements smaller than $\sim \sqrt{\log p / (N_X + N_Z)}$ to zero. The other nuisance including $\widehat{\lambda}_1^{(-m)}$ and $\widehat{v}_1^{(-m)}$ are directly computed using the matrix estimator. Under the row-wise sparsity and eigen-gap, the theoretical estimation errors of the nuisance are of order $\sqrt{\log p / (N_X + N_Z)}$, smaller than the requirement in \Cref{th: one step}.
+
+\begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=\linewidth]{paper_plot/037_unstructured_rejection_rate.pdf}
+    \caption{Rejection rates in the unstructured sparse covariance simulation. The plug-in method rejects in all settings, while the debiased proposal has well-controlled size under the projected null. Error bars are $95\%$ Monte Carlo intervals.}
+    \label{appfig: unstructured sparse covariance simulation}
+\end{figure}
+
+\subsection{Simulation Results}
+
+We report the rejection rates at $p<0.05$ of two methods in \Cref{appfig: unstructured sparse covariance simulation}. The plug-in method always has a large rejection rate, regardless of whether it is under the projected null or the genuine alternative. It is not suitable to test the projected null where the signal is orthogonal to $v_1$ (left column). However, the debiased method has the desired property: it is well-calibrated under the projected null, which can be used to answer the question of whether the signal aligns with the eigenvector direction. Under the alternative, it also has competitive power. Although the plug-in method rejects much more often in the ($p = 1000$, alternative) setting, it can only control type-I error when the means are exactly identical.
+
+\end{revblock}
 
 \section{More Details on Real Data Analysis}\label{app: immune cell results}
 
